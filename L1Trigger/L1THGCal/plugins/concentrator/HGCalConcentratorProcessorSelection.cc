@@ -33,6 +33,10 @@ HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const e
       selectionType_[subdet] = superTriggerCellSelect;
       if (!superTriggerCellImpl_)
         superTriggerCellImpl_ = std::make_unique<HGCalConcentratorSuperTriggerCellImpl>(conf);
+    } else if (selectionType[subdet] == "autoEncoder") {
+      selectionType_[subdet] = autoEncoderSelect;
+      if (!autoEncoderImpl_)
+        autoEncoderImpl_ = std::make_unique<HGCalConcentratorAutoEncoderImpl>(conf);
     } else if (selectionType[subdet] == "noSelection") {
       selectionType_[subdet] = noSelection;
     } else {
@@ -57,6 +61,8 @@ void HGCalConcentratorProcessorSelection::run(
     bestChoiceImpl_->eventSetup(es);
   if (superTriggerCellImpl_)
     superTriggerCellImpl_->eventSetup(es);
+  if (autoEncoderImpl_)
+    autoEncoderImpl_->eventSetup(es);
   if (coarsenerImpl_)
     coarsenerImpl_->eventSetup(es);
   if (trigSumImpl_)
@@ -109,6 +115,9 @@ void HGCalConcentratorProcessorSelection::run(
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
           break;
+        case autoEncoderSelect:
+          autoEncoderImpl_->select(trigCellVecCoarsened, trigCellVecOutput);
+          break;
         case noSelection:
           trigCellVecOutput = trigCellVecCoarsened;
           break;
@@ -131,6 +140,9 @@ void HGCalConcentratorProcessorSelection::run(
           break;
         case superTriggerCellSelect:
           superTriggerCellImpl_->select(module_trigcell.second, trigCellVecOutput);
+          break;
+        case autoEncoderSelect:
+          autoEncoderImpl_->select(module_trigcell.second, trigCellVecOutput);
           break;
         case noSelection:
           trigCellVecOutput = module_trigcell.second;
