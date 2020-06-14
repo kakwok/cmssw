@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, custom_conc_proc
+from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, custom_conc_proc, autoEncoder_conc_proc
 
 
 def create_supertriggercell(process, inputs,
@@ -23,6 +23,31 @@ def create_supertriggercell(process, inputs,
             ctcSize = ctcSize,
             )
     return producer
+
+def create_autoencoder(process, inputs,
+                            threshold_silicon      = autoEncoder_conc_proc.threshold_silicon, # MipT
+                            threshold_scintillator = autoEncoder_conc_proc.threshold_scintillator, # MipT
+                            cellRemap              = autoEncoder_conc_proc.cellRemap,
+                            coarsenTriggerCells    = autoEncoder_conc_proc.coarsenTriggerCells,
+                            fixedDataSizePerHGCROC = autoEncoder_conc_proc.fixedDataSizePerHGCROC,
+                            ctcSize                = autoEncoder_conc_proc.ctcSize,
+
+                            ):
+    producer = process.hgcalConcentratorProducer.clone(
+            InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs)),
+            InputTriggerSums = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
+            )
+    producer.ProcessorParameters = autoEncoder_conc_proc.clone(
+            threshold_silicon      =  threshold_silicon      ,
+            threshold_scintillator =  threshold_scintillator ,
+            cellRemap              =  cellRemap              ,
+            coarsenTriggerCells    =  coarsenTriggerCells    ,
+            fixedDataSizePerHGCROC =  fixedDataSizePerHGCROC ,
+            ctcSize                =  ctcSize                ,
+            )
+    return producer
+
+
 
 
 def create_threshold(process, inputs,

@@ -24,12 +24,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-       fileNames = cms.untracked.vstring('/store/mc/PhaseIIMTDTDRAutumn18DR/SinglePion_FlatPt-2to100/FEVT/PU200_103X_upgrade2023_realistic_v2-v1/70000/FFA969EE-22E0-E447-86AA-46A6CBF6407D.root'),
+       #fileNames = cms.untracked.vstring('/store/mc/PhaseIIMTDTDRAutumn18DR/SinglePion_FlatPt-2to100/FEVT/PU200_103X_upgrade2023_realistic_v2-v1/70000/FFA969EE-22E0-E447-86AA-46A6CBF6407D.root'),
+       fileNames = cms.untracked.vstring('file:/uscms/home/kkwok/eos/SinglePion_FlatPt-2to100_PU200_103X_upgrade2023_realistic_v2-v1_0.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            'drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT',
@@ -81,7 +82,11 @@ chains.register_vfe("Floatingpoint8", lambda p : vfe.create_compression(p, 4, 4,
 ## ECON
 chains.register_concentrator("Supertriggercell", concentrator.create_supertriggercell)
 chains.register_concentrator("Threshold", concentrator.create_threshold)
+chains.register_concentrator("Threshold0", lambda p,i : concentrator.create_threshold(p,i,threshold_silicon=0., threshold_scintillator=0.))
 chains.register_concentrator("Bestchoice", concentrator.create_bestchoice)
+chains.register_concentrator("Autoencoder", concentrator.create_autoencoder)
+from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import bestchoice_ndata_decentralized
+chains.register_concentrator("Bestchoice", lambda p,i : concentrator.create_bestchoice(p,i,triggercells=bestchoice_ndata_decentralized))
 ## BE1
 chains.register_backend1("Dummy", clustering2d.create_dummy)
 ## BE2
@@ -96,8 +101,8 @@ ntuple_list = ['event', 'gen', 'multiclusters']
 chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list))
 
 # Register trigger chains
-concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice']
-backend_algos = ['Histomax', 'Histomaxvardrth0', 'Histomaxvardrth10', 'Histomaxvardrth20']
+concentrator_algos = ['Supertriggercell', 'Autoencoder' ,'Threshold', 'Bestchoice']
+backend_algos = ['Histomax']
 ## Make cross product fo ECON and BE algos
 import itertools
 for cc,be in itertools.product(concentrator_algos,backend_algos):
@@ -112,6 +117,11 @@ process.hgcalTriggerPrimitives.remove(process.hgcalTower)
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 process.selector_step = cms.Path(process.hgcalTriggerSelector)
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
+
+from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_decentralized_V9
+
+#process = custom_geometry_V9(process, implementation=1)
+process = custom_geometry_decentralized_V9(process, implementation=1)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.hgcl1tpg_step, process.selector_step, process.ntuple_step)
