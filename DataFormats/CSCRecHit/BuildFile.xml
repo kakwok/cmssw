@@ -3,7 +3,6 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/TrackingRecHit"/>
-
 <export>
   <lib   name="1"/>
 </export>
