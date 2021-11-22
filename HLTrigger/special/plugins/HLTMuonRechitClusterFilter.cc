@@ -8,13 +8,11 @@
 #include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-
 // system include files
 #include <vector>
 #include <map>
 #include <iostream>
 #include <memory>
-
 
 class HLTMuonRechitClusterFilter : public HLTFilter {
 public:
@@ -67,7 +65,7 @@ HLTMuonRechitClusterFilter::HLTMuonRechitClusterFilter(const edm::ParameterSet& 
       max_Time_(iConfig.getParameter<double>("Max_Time")),
       min_Eta_(iConfig.getParameter<double>("Min_Eta")),
       max_Eta_(iConfig.getParameter<double>("Max_Eta")),
-      max_TimeSpread_(iConfig.getParameter<double>("Max_TimeSpread"))   {
+      max_TimeSpread_(iConfig.getParameter<double>("Max_TimeSpread")) {
   cluster_token_ = consumes<reco::MuonRecHitClusterCollection>(cluster_tag_);
 }
 
@@ -102,8 +100,8 @@ void HLTMuonRechitClusterFilter::fillDescriptions(edm::ConfigurationDescriptions
 
 // ------------ method called on each new Event  ------------
 bool HLTMuonRechitClusterFilter::hltFilter(edm::Event& iEvent,
-                                     const edm::EventSetup& iSetup,
-                                     trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+                                           const edm::EventSetup& iSetup,
+                                           trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace edm;
   using namespace std;
   using namespace trigger;
@@ -113,22 +111,14 @@ bool HLTMuonRechitClusterFilter::hltFilter(edm::Event& iEvent,
   auto const& rechitClusters = iEvent.get(cluster_token_);
 
   for (auto const& cluster : rechitClusters) {
-    if ( 
-        (cluster.size() >= min_Size_) &&
-        ((cluster.size()-cluster.nMB1())>= min_SizeMinusMB1_) &&
-        (cluster.nMB1() <= max_nMB1_) &&
-        (cluster.nMB2() <= max_nMB2_) &&
-        (cluster.nME11() <= max_nME11_) &&
-        (cluster.nME12() <= max_nME12_) &&
-        (cluster.nME41() <= max_nME41_) &&
-        (cluster.nME42() <= max_nME42_) &&
-        (cluster.nStation() >= min_nStation_) &&
-        (cluster.avgStation() >= min_avgStation_) &&
+    if ((cluster.size() >= min_Size_) && ((cluster.size() - cluster.nMB1()) >= min_SizeMinusMB1_) &&
+        (cluster.nMB1() <= max_nMB1_) && (cluster.nMB2() <= max_nMB2_) && (cluster.nME11() <= max_nME11_) &&
+        (cluster.nME12() <= max_nME12_) && (cluster.nME41() <= max_nME41_) && (cluster.nME42() <= max_nME42_) &&
+        (cluster.nStation() >= min_nStation_) && (cluster.avgStation() >= min_avgStation_) &&
         ((min_Eta_ < 0.0) || (std::abs(cluster.eta()) >= min_Eta_)) &&
-        ((max_Eta_ < 0.0) || (std::abs(cluster.eta()) <= max_Eta_)) &&
-        (cluster.time() >min_Time_) && (cluster.time() <=max_Time_) &&
-        (cluster.timeSpread() <= max_TimeSpread_)){
-        nClusterPassed++;
+        ((max_Eta_ < 0.0) || (std::abs(cluster.eta()) <= max_Eta_)) && (cluster.time() > min_Time_) &&
+        (cluster.time() <= max_Time_) && (cluster.timeSpread() <= max_TimeSpread_)) {
+      nClusterPassed++;
     }
   }
 
