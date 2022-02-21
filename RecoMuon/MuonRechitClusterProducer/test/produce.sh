@@ -1,0 +1,2 @@
+cmsRun test_RechitCluster_full.py
+#cmsRun test_RechitCluster_full_signal.py
