@@ -12,7 +12,7 @@ public:
   enum Run3Shower { kInvalid = 0, kLoose = 1, kNominal = 2, kTight = 3 };
 
   /// Constructors
-  CSCShowerDigi(const uint16_t inTimeBits, const uint16_t outTimeBits, const uint16_t cscID);
+  CSCShowerDigi(const uint16_t inTimeBits, const uint16_t outTimeBits, const uint16_t cscID, const uint16_t bx);
   /// default
   CSCShowerDigi();
 
@@ -32,16 +32,19 @@ public:
   uint16_t bitsInTime() const { return bitsInTime_; }
   uint16_t bitsOutOfTime() const { return bitsOutOfTime_; }
 
+  uint16_t getBX() const {return bx_; }
   uint16_t getCSCID() const { return cscID_; }
 
   /// set cscID
   void setCSCID(const uint16_t c) { cscID_ = c; }
+  void setBX(const uint16_t bx)  {bx_ = bx; }
 
 private:
   uint16_t bitsInTime_;
   uint16_t bitsOutOfTime_;
   // 4-bit CSC chamber identifier
   uint16_t cscID_;
+  uint16_t bx_;
 };
 
 std::ostream& operator<<(std::ostream& o, const CSCShowerDigi& digi);
