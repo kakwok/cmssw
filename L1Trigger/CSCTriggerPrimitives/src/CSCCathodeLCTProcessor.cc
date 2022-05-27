@@ -1175,7 +1175,6 @@ std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::getAllShower() const {
 };
    
 /** Returns shower bits */
-/** Returns shower bits */
 std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::readoutShower() const { 
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
@@ -1243,7 +1242,8 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(){
     }
     
     if (bx < CSCConstants::MAX_CLCT_TBINS - showerNumTBins_/2 - 1){
-      if (hitsInTime[minbx] < hitsInTime[maxbx+1]) isPeak = false; //next bx would have more hits
+      if (hitsInTime[minbx] < hitsInTime[maxbx+1] or (hitsInTime[minbx] == hitsInTime[maxbx+1] and hitsInTime[bx] < hitsInTime[bx+1])) 
+        isPeak = false; //next bx would have more hits or in the center 
     }
     if (dead_count > 0){
       dead_count--;
