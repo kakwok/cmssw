@@ -227,9 +227,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             const std::vector<CSCALCTPreTriggerDigi>& alctpretriggerV = tmb->alctProc->preTriggerDigis();
 
             // showers
-            const CSCShowerDigi& shower = tmb->readoutShower();
-            const CSCShowerDigi& anodeShower = tmb->alctProc->readoutShower();
-            const CSCShowerDigi& cathodeShower = tmb->clctProc->readoutShower();
+            const std::vector<CSCShowerDigi>& shower = tmb->readoutShower();
+            const std::vector<CSCShowerDigi>& anodeShower = tmb->alctProc->readoutShower();
+            const std::vector<CSCShowerDigi>& cathodeShower = tmb->clctProc->readoutShower();
 
             put(alctV, oc_alct, detid, tmb->getCSCName() + " ALCT digi");
             put(clctV, oc_clct, detid, tmb->getCSCName() + " CLCT digi");
@@ -239,12 +239,15 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             put(pretriggerV, oc_pretrigger, detid, tmb->getCSCName() + " CLCT pre-trigger digi");
             put(alctpretriggerV, oc_alctpretrigger, detid, tmb->getCSCName() + " ALCT pre-trigger digi");
 
-            if (shower.isValid())
-              oc_shower.insertDigi(detid, shower);
-            if (anodeShower.isValid())
-              oc_shower_anode.insertDigi(detid, anodeShower);
-            if (cathodeShower.isValid())
-              oc_shower_cathode.insertDigi(detid, cathodeShower);
+            put(shower,  oc_shower, detid, tmb->getCSCName()+"TMB shower");
+            put(anodeShower,  oc_shower_anode, detid, tmb->getCSCName()+"Anode shower");
+            put(cathodeShower,  oc_shower_cathode, detid, tmb->getCSCName()+"Cathode shower");
+            //if (shower.isValid())
+            //  oc_shower.insertDigi(detid, shower);
+            //if (anodeShower.isValid())
+            //  oc_shower_anode.insertDigi(detid, anodeShower);
+            //if (cathodeShower.isValid())
+            //  oc_shower_cathode.insertDigi(detid, cathodeShower);
 
             if (!(alctV.empty() && clctV.empty() && lctV.empty()) and infoV > 1) {
               LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder got results in " << detid;

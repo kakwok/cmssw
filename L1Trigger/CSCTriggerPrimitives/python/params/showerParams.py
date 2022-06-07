@@ -41,10 +41,11 @@ showerPSet = cms.PSet(
             # ME4/2
             0, 0, 0
         ),
-        showerMinInTBin = cms.uint32(6),
-        showerMaxInTBin = cms.uint32(8),
-        showerMinOutTBin = cms.uint32(2),
-        showerMaxOutTBin = cms.uint32(5),
+        showerNumTBins = cms.uint32(3),# 3BX for cathode HMT
+        #showerMinInTBin = cms.uint32(6),
+        #showerMaxInTBin = cms.uint32(8),
+        #showerMinOutTBin = cms.uint32(2),
+        #showerMaxOutTBin = cms.uint32(5),
         minLayersCentralTBin = cms.uint32(5),
     ),
     ## settings for anode showers (counting CSCWireDigi)
@@ -70,10 +71,11 @@ showerPSet = cms.PSet(
             # ME4/2
             13, 27, 31
         ),
-        showerMinInTBin = cms.uint32(8),
-        showerMaxInTBin = cms.uint32(8),
-        showerMinOutTBin = cms.uint32(4),
-        showerMaxOutTBin = cms.uint32(7),
+        showerNumTBins = cms.uint32(1),# 1BX for anode HMT
+        #showerMinInTBin = cms.uint32(8),
+        #showerMaxInTBin = cms.uint32(8),
+        #showerMinOutTBin = cms.uint32(4),
+        #showerMaxOutTBin = cms.uint32(7),
         minLayersCentralTBin = cms.uint32(5),
     )
 )

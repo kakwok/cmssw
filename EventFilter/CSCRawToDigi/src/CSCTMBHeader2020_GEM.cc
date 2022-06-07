@@ -165,20 +165,26 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader2020_GEM::CorrelatedLCTDigis(uint3
 
 CSCShowerDigi CSCTMBHeader2020_GEM::showerDigi(uint32_t idlayer) const {
   unsigned hmt_bits = bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1);  // HighMultiplicityTrigger bits
-  uint16_t cscid = 0;                                                  // ??? What is 4-bits CSC Id in CSshowerDigi
-  CSCShowerDigi result(hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid);  // 2-bits intime, 2-bits out of time
+  uint16_t cscid = bits.cscID;                                                  // ??? What is 4-bits CSC Id in CSshowerDigi
+  //L1A_TMB_WINDOW is not included in below formula
+  //correct version:  CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win + L1A_TMB_WINDOW/2;
+  // same for anode HMT and cathode HMT
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  CSCShowerDigi result(hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid, bx);  // 2-bits intime, 2-bits out of time
   return result;
 }
 
 CSCShowerDigi CSCTMBHeader2020_GEM::anodeShowerDigi(uint32_t idlayer) const {
-  uint16_t cscid = 0;
-  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  uint16_t cscid = bits.cscID;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid, bx);  // 2-bits intime, no out of time
   return result;
 }
 
 CSCShowerDigi CSCTMBHeader2020_GEM::cathodeShowerDigi(uint32_t idlayer) const {
-  uint16_t cscid = 0;
-  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  uint16_t cscid = bits.cscID;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx);  // 2-bits intime, no out of time
   return result;
 }
 
@@ -303,6 +309,8 @@ void CSCTMBHeader2020_GEM::print(std::ostream& os) const {
      << ", activeCFEBs = 0x" << std::hex << (bits.activeCFEBs | (bits.activeCFEBs_2 << 5)) << ", readCFEBs = 0x"
      << std::hex << (bits.readCFEBs | (bits.readCFEBs_2 << 5)) << std::dec << "\n";
   os << "bxnPreTrigger = " << bits.bxnPreTrigger << "\n";
+  os << "ALCT location in CLCt window "<< bits.matchWin << " L1A location in TMB window "<< bits.pop_l1a_match_win 
+     << " ALCT in cathde HMT window "<< bits.hmt_match_win << "\n";
   os << "tmbMatch = " << bits.tmbMatch << " alctOnly = " << bits.alctOnly << " clctOnly = " << bits.clctOnly << "\n";
 
   os << "readoutCounter: " << std::dec << bits.readoutCounter << ", buf_q_ovf: " << bits.stackOvf
