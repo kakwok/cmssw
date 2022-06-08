@@ -1388,9 +1388,9 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
   std::vector<unsigned> station_thresholds = {
       thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
 
-  unsigned int deadtime = 2;// firmware hard coded dead time as 2Bx
-  unsigned int dead_count = 0;
-  bool dead_status = false;
+  //unsigned int deadtime = 2;// firmware hard coded dead time as 2Bx
+  //unsigned int dead_count = 0;
+  //bool dead_status = false;
   for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
     unsigned minbx = bx >= showerNumTBins_/2 ? bx-showerNumTBins_/2 : bx;
     unsigned maxbx = bx < CSCConstants::MAX_ALCT_TBINS - showerNumTBins_/2 ? bx+showerNumTBins_/2 : CSCConstants::MAX_ALCT_TBINS - 1; 
@@ -1402,22 +1402,23 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
       this_hitsInTime += hitsInTime[mbx];
     }
     //ignore the peak check for anode HMT since  showerNumTBins_=1 anyway
-    if (dead_count > 0){
-      dead_count--;
-      dead_status = true;
-      //continue; 
-    }else
-      dead_status = false;
+    //if (dead_count > 0){
+    //  dead_count--;
+    //  dead_status = true;
+    //  //continue; 
+    //}else
+    //  dead_status = false;
 
     unsigned this_inTimeHMT = 0;
     // require at least nLayersWithHits for the central time bin
     // do nothing if there are not enough layers with hits
-    if (this_layersWithHits.size() >= minLayersCentralTBin_ and !dead_status){
+    //if (this_layersWithHits.size() >= minLayersCentralTBin_ and !dead_status){
+    if (this_layersWithHits.size() >= minLayersCentralTBin_){
       // assign the bits
       for (unsigned i = 0; i < station_thresholds.size(); i++) {
         if (this_hitsInTime >= station_thresholds[i]) {
           this_inTimeHMT = i + 1;
-          dead_count = deadtime;
+          //dead_count = deadtime;
         }
       }
     }
