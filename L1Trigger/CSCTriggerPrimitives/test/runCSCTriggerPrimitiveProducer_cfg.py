@@ -57,6 +57,7 @@ if not options.run3:
       process_era = Run2_2018
 
 process = cms.Process("L1CSCTPG", process_era)
+#process = cms.Process("L1DQM", process_era)
 process.load("Configuration/StandardSequences/GeometryRecoDB_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
@@ -70,7 +71,9 @@ process.load("L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi")
 process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
 process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
 process.load("DQM.L1TMonitor.L1TdeCSCTPG_cfi")
+process.load("DQM.L1TMonitor.L1TdeCSCTPGShower_cfi")
 process.load("DQM.L1TMonitor.L1TdeGEMTPG_cfi")
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
       input = cms.untracked.int32(options.maxEvents)
@@ -89,6 +92,16 @@ process.source = cms.Source(
       )
 )
 
+#process.MessageLogger = cms.Service("MessageLogger",
+#    destinations = cms.untracked.vstring("debug"),
+#    debug = cms.untracked.PSet(
+#          extension = cms.untracked.string(".txt"),
+#          threshold = cms.untracked.string("DEBUG"),
+#          lineLength = cms.untracked.int32(132),
+#          noLineBreaks = cms.untracked.bool(False)
+#    ),
+#    debugModules = cms.untracked.vstring("cscTriggerPrimitiveDigis")
+#)
 ## this line is needed to run the GEM unpacker on output from AMC13SpyReadout.py or readFile_b904_Run3.py
 if options.unpackGEM:
       process.source.labelRawDataLikeMC = cms.untracked.bool(False)
@@ -102,7 +115,7 @@ if options.mc:
 else:
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
       if options.run3:
-            process.GlobalTag = GlobalTag(process.GlobalTag, '112X_dataRun3_Prompt_v5', '')
+            process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 ## running on unpacked data, or after running the unpacker
 if not options.mc or options.unpack:
@@ -168,6 +181,11 @@ process.output = cms.OutputModule(
       ]),
       fileName = cms.untracked.string("lcts2.root"),
 )
+#output for analyzer
+process.TFileService = cms.Service("TFileService",
+                                       fileName = cms.string('plots.root')
+                                   )
+
 
 ## for most studies, you don't need these collections.
 ## adjust as necessary
@@ -234,6 +252,10 @@ if options.unpackGEM:
       ## unpack GEM pad clusters from the EMTF
       if options.useEmtfGEM:
             process.unpacksequence += process.emtfStage2Digis
+
+from L1Trigger.CSCTriggerPrimitives.CSCShowerAnalyzer_cfi import cscTriggerPrimitivesAnalyzer
+process.cscTriggerPrimitivesAnalyzer = cscTriggerPrimitivesAnalyzer
+
 process.p1 = cms.Path(process.unpacksequence)
 
 process.l1sequence = cms.Sequence(l1csc)
@@ -242,9 +264,13 @@ if options.l1GEM:
       ## maybe the modules need to come first
       process.l1sequence += process.simMuonGEMPadDigis
       process.l1sequence += process.simMuonGEMPadDigiClusters
+
+process.l1sequence += process.cscTriggerPrimitivesAnalyzer
 process.p2 = cms.Path(process.l1sequence)
 
-process.dqmsequence = cms.Sequence(process.l1tdeCSCTPG)
+#process.dqmsequence = cms.Sequence(process.l1tdeCSCTPG )
+process.dqmsequence = cms.Sequence(process.l1tdeCSCTPG * process.l1tdeCSCTPGShower)
+process.dqmsequence = cms.Sequence( process.l1tdeCSCTPGShower)
 if options.dqmGEM:
       process.dqmsequence += process.l1tdeGEMTPG
 process.p3 = cms.Path(process.dqmsequence)
@@ -264,7 +290,7 @@ if options.l1:
 
 ## add DQM step 1
 if options.dqm:
-      process.schedule.extend([process.p3, process.p4])
+      process.schedule.extend([process.p3,process.p4])
 
 if options.saveEdmOutput:
       process.schedule.extend([process.p5])
