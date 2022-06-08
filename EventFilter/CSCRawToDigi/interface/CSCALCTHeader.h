@@ -168,7 +168,8 @@ public:
         // {
         if ((!theALCTs.empty()) && (theALCTs.size() == unsigned(header2007.lctBins * 2))) {
           for (unsigned bx = 0; bx < header2007.lctBins; bx++) {
-            results.push_back(CSCShowerDigi(theALCTs[bx * 2].reserved & 0x3, 0, bx));
+            //CSCID is set to be 0
+            results.push_back(CSCShowerDigi(theALCTs[bx * 2].reserved & 0x3, 0, 0, bx));
           }
           return results;
         } else

@@ -96,7 +96,7 @@ void CSCMotherboard::clear() {
   allLCTs_.clear();
 
   // reset the shower trigger
-  shower_.clear();
+  //shower_.clear();
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -199,9 +199,9 @@ void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_AL
       // loop on the preferred "delta BX" array
       for (unsigned mbx = 0; mbx < match_trig_window_size; mbx++) {
         // evaluate the preffered CLCT BX, taking into account that there is an offset in the simulation
-        unsigned bx_clct = bx_alct + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
+        int bx_clct = bx_alct + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
         // check that the CLCT BX is valid
-        if (bx_clct >= CSCConstants::MAX_CLCT_TBINS)
+        if (bx_clct >= CSCConstants::MAX_CLCT_TBINS or bx_clct < 0)
           continue;
         // do not consider previously matched CLCTs
         if (drop_used_clcts && used_clct_mask[bx_clct])
@@ -372,7 +372,16 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   return tmpV;
 }
 
-CSCShowerDigi CSCMotherboard::readoutShower() const { return shower_; }
+std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const { 
+  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
+  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
+  std::vector<CSCShowerDigi> showerOut;
+  //for (auto& shower : cathode_showers_)
+  //  if (minbx_readout <= shower.getBX() and shower.getBX() <= maxbx_readout) showerOut.push_back(shower);
+  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
+    if (showers_[bx].isValid()) showerOut.push_back(showers_[bx]);
+  return showerOut; 
+}
 
 void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
                                    const CSCALCTDigi& sALCT,
@@ -595,34 +604,73 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
   return cLCT_shifted;
 }
 
+void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi * cathode_showers, bool andlogic){
+
+  CSCShowerDigi ashower, cshower;
+  for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
+    ashower = anode_showers[bx];
+    cshower = CSCShowerDigi();//use empty shower digi to initialize cshower
+    if (ashower.isValid()){
+      for (unsigned mbx = 0; mbx < match_trig_window_size; mbx++) {
+        int cbx = bx + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
+        //check bx range [0, CSCConstants::MAX_LCT_TBINS)
+        if (cbx < 0 || cbx >= CSCConstants::MAX_CLCT_TBINS)
+          continue;
+        if (cathode_showers[cbx].isValid()) {
+          cshower = cathode_showers[cbx];
+          break;
+        } 
+      }
+    }else cshower = cathode_showers[bx];//if anode shower is not valid, use the cshower from this bx
+   
+   //matched HMT, with and/or logic
+   unsigned matchHMT = 0;
+   if (andlogic) matchHMT = ashower.bitsInTime() & cshower.bitsInTime();
+   else matchHMT = ashower.bitsInTime() | cshower.bitsInTime(); 
+   showers_[bx] =  CSCShowerDigi(matchHMT&3, false, ashower.getCSCID(), bx);
+  }
+}
+
 void CSCMotherboard::encodeHighMultiplicityBits() {
   // get the high multiplicity
   // for anode this reflects what is already in the anode CSCShowerDigi object
-  unsigned cathodeInTime = clctProc->getInTimeHMT();
-  unsigned anodeInTime = alctProc->getInTimeHMT();
+  //unsigned cathodeInTime = clctProc->getInTimeHMT();
+  //unsigned anodeInTime = alctProc->getInTimeHMT();
+  CSCShowerDigi cathode_showers [CSCConstants::MAX_CLCT_TBINS]; 
+  CSCShowerDigi anode_showers [CSCConstants::MAX_ALCT_TBINS]; 
+  auto cshowers_v = clctProc->getAllShower();
+  auto ashowers_v = alctProc->getAllShower();
+
+  std::copy(cshowers_v.begin(), cshowers_v.end(), cathode_showers);
+  std::copy(ashowers_v.begin(), ashowers_v.end(), anode_showers);
 
   // assign the bits
-  unsigned inTimeHMT_;
+  //unsigned inTimeHMT_;
 
   // set the value according to source
   switch (showerSource_) {
     case 0:
-      inTimeHMT_ = cathodeInTime;
+      //inTimeHMT_ = cathodeInTime;
+      std::copy(std::begin(cathode_showers), std::end(cathode_showers), std::begin(showers_));
       break;
     case 1:
-      inTimeHMT_ = anodeInTime;
+      std::copy(std::begin(anode_showers), std::end(anode_showers), std::begin(showers_));
+      //inTimeHMT_ = anodeInTime;
       break;
     case 2:
-      inTimeHMT_ = anodeInTime | cathodeInTime;
+      //inTimeHMT_ = anodeInTime | cathodeInTime;
+      matchShowers(anode_showers, cathode_showers, false);
       break;
     case 3:
-      inTimeHMT_ = anodeInTime & cathodeInTime;
+      //inTimeHMT_ = anodeInTime & cathodeInTime;
+      matchShowers(anode_showers, cathode_showers, true);
       break;
     default:
-      inTimeHMT_ = cathodeInTime;
+      //inTimeHMT_ = cathodeInTime;
+      std::copy(std::begin(anode_showers), std::end(anode_showers), std::begin(showers_));
       break;
   };
 
   // create a new object
-  shower_ = CSCShowerDigi(inTimeHMT_, 0, theTrigChamber);
+  // shower_ = CSCShowerDigi(inTimeHMT_, 0, theTrigChamber);
 }
