@@ -1406,7 +1406,9 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
       dead_count--;
       dead_status = true;
       //continue; 
-    }
+    }else
+      dead_status = false;
+
     unsigned this_inTimeHMT = 0;
     // require at least nLayersWithHits for the central time bin
     // do nothing if there are not enough layers with hits
