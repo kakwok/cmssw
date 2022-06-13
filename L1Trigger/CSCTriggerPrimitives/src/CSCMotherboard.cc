@@ -624,10 +624,17 @@ void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi *
     }else cshower = cathode_showers[bx];//if anode shower is not valid, use the cshower from this bx
    
    //matched HMT, with and/or logic
-   unsigned matchHMT = 0;
-   if (andlogic) matchHMT = ashower.bitsInTime() & cshower.bitsInTime();
-   else matchHMT = ashower.bitsInTime() | cshower.bitsInTime(); 
-   showers_[bx] =  CSCShowerDigi(matchHMT&3, false, ashower.getCSCID(), bx);
+    unsigned matchHMT = 0;
+    if (andlogic) {
+      if (ashower.isTightInTime() and cshower.isTightInTime()) matchHMT = 3;
+      else if (ashower.isNominalInTime() and cshower.isNominalInTime()) matchHMT = 2;
+      else if (ashower.isLooseInTime() and cshower.isLooseInTime()) matchHMT = 1;
+    }else{
+      if (ashower.isTightInTime() or cshower.isTightInTime()) matchHMT = 3; 
+      else if (ashower.isNominalInTime() or cshower.isNominalInTime()) matchHMT = 2;
+      else if (ashower.isLooseInTime() or cshower.isLooseInTime()) matchHMT = 1;
+    }
+    showers_[bx] =  CSCShowerDigi(matchHMT&3, false, ashower.getCSCID(), bx);
   }
 }
 
