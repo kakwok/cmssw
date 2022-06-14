@@ -64,7 +64,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 
   // shower-trigger source
-  showerSource_ = showerParams_.getParameter<unsigned>("source");
+  showerSource_ = showerParams_.getParameter<std::vector<unsigned>>("source");
+
+  unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
+  thisShowerSource_ = showerSource_[csc_idx];
 
   // enable the upgrade processors for ring 1 stations
   if (runPhase2_ and theRing == 1) {
@@ -95,8 +98,9 @@ void CSCMotherboard::clear() {
 
   allLCTs_.clear();
 
-  // reset the shower trigger
-  //shower_.clear();
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
+    showers_[bx].clear();
+  }
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -376,10 +380,11 @@ std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const {
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
   std::vector<CSCShowerDigi> showerOut;
-  //for (auto& shower : cathode_showers_)
-  //  if (minbx_readout <= shower.getBX() and shower.getBX() <= maxbx_readout) showerOut.push_back(shower);
   for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
-    if (showers_[bx].isValid()) showerOut.push_back(showers_[bx]);
+    if (showers_[bx].isValid()) {
+	showerOut.push_back(showers_[bx]);
+	std::cout <<"Chamberid "<< cscId_  << showers_[bx] << std::endl;
+    }
   return showerOut; 
 }
 
@@ -641,8 +646,6 @@ void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi *
 void CSCMotherboard::encodeHighMultiplicityBits() {
   // get the high multiplicity
   // for anode this reflects what is already in the anode CSCShowerDigi object
-  //unsigned cathodeInTime = clctProc->getInTimeHMT();
-  //unsigned anodeInTime = alctProc->getInTimeHMT();
   CSCShowerDigi cathode_showers [CSCConstants::MAX_CLCT_TBINS]; 
   CSCShowerDigi anode_showers [CSCConstants::MAX_ALCT_TBINS]; 
   auto cshowers_v = clctProc->getAllShower();
@@ -652,32 +655,24 @@ void CSCMotherboard::encodeHighMultiplicityBits() {
   std::copy(ashowers_v.begin(), ashowers_v.end(), anode_showers);
 
   // assign the bits
-  //unsigned inTimeHMT_;
 
   // set the value according to source
-  switch (showerSource_) {
+  switch (thisShowerSource_) {
     case 0:
-      //inTimeHMT_ = cathodeInTime;
       std::copy(std::begin(cathode_showers), std::end(cathode_showers), std::begin(showers_));
       break;
     case 1:
       std::copy(std::begin(anode_showers), std::end(anode_showers), std::begin(showers_));
-      //inTimeHMT_ = anodeInTime;
       break;
     case 2:
-      //inTimeHMT_ = anodeInTime | cathodeInTime;
       matchShowers(anode_showers, cathode_showers, false);
       break;
     case 3:
-      //inTimeHMT_ = anodeInTime & cathodeInTime;
       matchShowers(anode_showers, cathode_showers, true);
       break;
     default:
-      //inTimeHMT_ = cathodeInTime;
       std::copy(std::begin(anode_showers), std::end(anode_showers), std::begin(showers_));
       break;
   };
 
-  // create a new object
-  // shower_ = CSCShowerDigi(inTimeHMT_, 0, theTrigChamber);
 }

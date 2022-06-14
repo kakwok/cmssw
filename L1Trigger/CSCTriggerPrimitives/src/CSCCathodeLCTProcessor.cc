@@ -96,11 +96,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   const auto& shower = showerParams_.getParameterSet("cathodeShower");
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
-  //showerMinInTBin_ = shower.getParameter<unsigned>("showerMinInTBin");
-  //showerMaxInTBin_ = shower.getParameter<unsigned>("showerMaxInTBin");
-  //showerMinOutTBin_ = shower.getParameter<unsigned>("showerMinOutTBin");
-  //showerMaxOutTBin_ = shower.getParameter<unsigned>("showerMaxOutTBin");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
+  peakCheck_ =  shower.getParameter<bool>("peakCheck");
   thePreTriggerDigis.clear();
 
   // quality control of stubs
@@ -179,6 +176,7 @@ void CSCCathodeLCTProcessor::clear() {
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
+    cathode_showers_[bx].clear();
   }
   // cathode_showers_.clear();
   //inTimeHMT_ = 0;
@@ -1179,8 +1177,6 @@ std::vector<CSCShowerDigi> CSCCathodeLCTProcessor::readoutShower() const {
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
   std::vector<CSCShowerDigi> showerOut;
-  //for (auto& shower : cathode_showers_)
-  //  if (minbx_readout <= shower.getBX() and shower.getBX() <= maxbx_readout) showerOut.push_back(shower);
   for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
     if (cathode_showers_[bx].isValid()) showerOut.push_back(cathode_showers_[bx]);
   return showerOut; 
@@ -1231,43 +1227,39 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(){
   for (unsigned bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++){
     unsigned minbx = bx >= showerNumTBins_/2 ? bx-showerNumTBins_/2 : bx;
     unsigned maxbx = bx < CSCConstants::MAX_CLCT_TBINS - showerNumTBins_/2 ? bx+showerNumTBins_/2 : CSCConstants::MAX_CLCT_TBINS - 1; 
-    std::set<unsigned> this_layersWithHits;
-    this_layersWithHits.clear();
     unsigned this_hitsInTime = 0;
     bool isPeak = true;//check whether total hits in bx is peak of nhits over time bins
     /*following is to count number of hits over [minbx, maxbx], showerNumTBins=3 =>[n-1, n+1]*/
     for (unsigned mbx = minbx; mbx <= maxbx; mbx++){
-      this_layersWithHits.merge(layersWithHits[mbx]);
       this_hitsInTime += hitsInTime[mbx];
     }
     
-    if (bx < CSCConstants::MAX_CLCT_TBINS - showerNumTBins_/2 - 1){
+    if (peakCheck_ and bx < CSCConstants::MAX_CLCT_TBINS - showerNumTBins_/2 - 1){
       if (hitsInTime[minbx] < hitsInTime[maxbx+1] or (hitsInTime[minbx] == hitsInTime[maxbx+1] and hitsInTime[bx] < hitsInTime[bx+1])) 
         isPeak = false; //next bx would have more hits or in the center 
     }
     if (dead_count > 0){
       dead_count--;
       dead_status = true;
-      //continue; 
     }else
       dead_status = false;
 
     unsigned this_inTimeHMT = 0;
     // require at least nLayersWithHits for the central time bin
     // do nothing if there are not enough layers with hits
-    if (this_layersWithHits.size() >= minLayersCentralTBin_ and !dead_status and isPeak){
+    if (layersWithHits[bx].size() >= minLayersCentralTBin_ and !dead_status and isPeak){
       // assign the bits
       for (unsigned i = 0; i < station_thresholds.size(); i++) {
         if (this_hitsInTime >= station_thresholds[i]) {
           this_inTimeHMT = i + 1;
           dead_count = deadtime; 
+	  std::cout <<" test threshold "<< station_thresholds[i] <<" nhits "<< this_hitsInTime <<" HMTbits "<< this_inTimeHMT << std::endl;
         }
       }
     }
-    //cathode_showers_.push_back(CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx));
+    std::cout << "chamberid "<< cscId_ <<" CLCTHMT, BX "<< bx <<" nlayer "<< layersWithHits[bx].size() <<" nhits "<< this_hitsInTime <<" hmt "<< this_inTimeHMT << std::endl;
+    std::cout <<"\t status "<< (dead_status ? "deadtime" : "active") <<" ispeak "<< (isPeak ? "peak":"notpeak") <<" single Bx hits "<< hitsInTime[bx] << std::endl;
     cathode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx);
   }
 
-  // create a new object
-  // shower_ = CSCShowerDigi(inTimeHMT_, false, theTrigChamber);
 }

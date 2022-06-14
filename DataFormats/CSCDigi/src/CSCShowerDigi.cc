@@ -37,5 +37,5 @@ bool CSCShowerDigi::isNominalOutOfTime() const { return bitsOutOfTime() >= kNomi
 bool CSCShowerDigi::isTightOutOfTime() const { return bitsOutOfTime() >= kTight; }
 
 std::ostream& operator<<(std::ostream& o, const CSCShowerDigi& digi) {
-  return o << "CSC Shower: bx"<< digi.getBX() <<"in-time bits " << digi.bitsInTime() << ", out-of-time bits " << digi.bitsOutOfTime();
+  return o << "CSC Shower: bx "<< digi.getBX() <<", in-time bits " << digi.bitsInTime() << ", out-of-time bits " << digi.bitsOutOfTime();
 }
