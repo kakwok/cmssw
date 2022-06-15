@@ -192,15 +192,11 @@ protected:
 
   /* data members for high multiplicity triggers */
   void encodeHighMultiplicityBits();
-  //unsigned inTimeHMT_;
-  //unsigned outTimeHMT_;
   std::vector<unsigned> thresholds_;
   unsigned showerNumTBins_;
-  // unsigned showerMinInTBin_;
-  // unsigned showerMaxInTBin_;
-  // unsigned showerMinOutTBin_;
-  // unsigned showerMaxOutTBin_;
   unsigned minLayersCentralTBin_;
+  /** check the peak of total hits and single bx hits for cathode HMT */
+  bool peakCheck_;
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig;  // only for test beam mode.

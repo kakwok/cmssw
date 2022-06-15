@@ -147,7 +147,8 @@ protected:
   bool match_earliest_clct_only_;
 
   // encode special bits for high-multiplicity triggers
-  unsigned showerSource_;
+  std::vector<unsigned> showerSource_;
+  unsigned thisShowerSource_;
 
   bool ignoreAlctCrossClct_;
 

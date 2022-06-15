@@ -178,10 +178,9 @@ void CSCAnodeLCTProcessor::clear() {
   for (int bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++) {
     bestALCT[bx].clear();
     secondALCT[bx].clear();
+    anode_showers_[bx].clear();//?
   }
   lct_list.clear();
-  //anode_showers_ = null;//?
-  //inTimeHMT_ = 0;
 }
 
 void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
@@ -1289,8 +1288,6 @@ std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const {
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width/2;
   std::vector<CSCShowerDigi> showerOut;
-  //for (auto shower : anode_showers_)
-  //  if (minbx_readout <= shower.getBX() and shower.getBX() <= maxbx_readout) showerOut.push_back(shower);
   for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++)
     if (anode_showers_[bx].isValid())  showerOut.push_back(anode_showers_[bx]);
   return showerOut; 
@@ -1354,9 +1351,7 @@ void CSCAnodeLCTProcessor::setWireContainer(CSCALCTDigi& alct, CSCALCTDigi::Wire
 }
 
 void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
-  //inTimeHMT_ = 0;
 
-  //auto layerTime = [=](unsigned time) { return time == CSCConstants::LCT_CENTRAL_BX; };
   //numer of layer with hits and number of hits for 0-15 BXs
   std::set<unsigned> layersWithHits [CSCConstants::MAX_ALCT_TBINS];
   unsigned hitsInTime [CSCConstants::MAX_ALCT_TBINS]; 
@@ -1388,44 +1383,26 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
   std::vector<unsigned> station_thresholds = {
       thresholds_[csc_idx * 3], thresholds_[csc_idx * 3 + 1], thresholds_[csc_idx * 3 + 2]};
 
-  //unsigned int deadtime = 2;// firmware hard coded dead time as 2Bx
-  //unsigned int dead_count = 0;
-  //bool dead_status = false;
   for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
     unsigned minbx = bx >= showerNumTBins_/2 ? bx-showerNumTBins_/2 : bx;
     unsigned maxbx = bx < CSCConstants::MAX_ALCT_TBINS - showerNumTBins_/2 ? bx+showerNumTBins_/2 : CSCConstants::MAX_ALCT_TBINS - 1; 
-    std::set<unsigned> this_layersWithHits;
-    this_layersWithHits.clear();
     unsigned this_hitsInTime = 0;
     for (unsigned mbx = minbx; mbx <= maxbx; mbx++){
-      this_layersWithHits.merge(layersWithHits[mbx]);
       this_hitsInTime += hitsInTime[mbx];
     }
-    //ignore the peak check for anode HMT since  showerNumTBins_=1 anyway
-    //if (dead_count > 0){
-    //  dead_count--;
-    //  dead_status = true;
-    //  //continue; 
-    //}else
-    //  dead_status = false;
 
     unsigned this_inTimeHMT = 0;
     // require at least nLayersWithHits for the central time bin
     // do nothing if there are not enough layers with hits
-    //if (this_layersWithHits.size() >= minLayersCentralTBin_ and !dead_status){
-    if (this_layersWithHits.size() >= minLayersCentralTBin_){
+    if (layersWithHits[bx].size() >= minLayersCentralTBin_){
       // assign the bits
       for (unsigned i = 0; i < station_thresholds.size(); i++) {
         if (this_hitsInTime >= station_thresholds[i]) {
           this_inTimeHMT = i + 1;
-          //dead_count = deadtime;
         }
       }
     }
-    //anode_showers_.push_back(CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx));
+    std::cout << "chamberid "<< cscId_ <<" ALCTHMT, BX "<< bx <<" nlayer "<< layersWithHits[bx].size() <<" nhits "<< this_hitsInTime <<" hmt "<< this_inTimeHMT << std::endl;
     anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx); 
   }
-  //below is not used
-  // create a new object
-  // shower_ = CSCShowerDigi(inTimeHMT_, false, theTrigChamber);
 }
