@@ -179,7 +179,7 @@ CSCShowerDigi CSCTMBHeader2020_CCLUT::anodeShowerDigi(uint32_t idlayer) const {
 
 CSCShowerDigi CSCTMBHeader2020_CCLUT::cathodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win - bits.hmt_match_win + 3;
   CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx);  // 2-bits intime, no out of time
   return result;
 }
@@ -349,5 +349,5 @@ void CSCTMBHeader2020_CCLUT::print(std::ostream& os) const {
 
   os << " clct_5bit_pattern_id = " << (bits.MPC_Muon_clct_pattern_low | (bits.MPC_Muon_clct_pattern_bit5 << 4))
      << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << ", alctHMT = " << bits.anode_hmt
-     << ", clctHMT = " << bits.cathode_hmt << "\n";
+     << ", clctHMT = " << bits.cathode_hmt << " cathode nhits "<< hmt_nhits() <<"\n";
 }
