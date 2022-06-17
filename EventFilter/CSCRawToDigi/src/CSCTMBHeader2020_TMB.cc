@@ -149,7 +149,7 @@ CSCShowerDigi CSCTMBHeader2020_TMB::anodeShowerDigi(uint32_t idlayer) const {
 
 CSCShowerDigi CSCTMBHeader2020_TMB::cathodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win -  + 3;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx);  // 2-bits intime, no out of time
   return result;
 }
