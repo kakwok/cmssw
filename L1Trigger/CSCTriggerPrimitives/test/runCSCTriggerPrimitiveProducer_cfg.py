@@ -50,6 +50,7 @@ options.register("dropNonMuonCollections", True, VarParsing.multiplicity.singlet
                  "Option to drop most non-muon collections generally considered unnecessary for GEM/CSC analysis")
 options.register("dqmOutputFile", "step_DQM.root", VarParsing.multiplicity.singleton, VarParsing.varType.string,
                  "Name of the DQM output file. Default: step_DQM.root")
+options.register("runNumber", 353018, VarParsing.multiplicity.singleton, VarParsing.varType.int,"run number")
 options.parseArguments()
 
 process_era = Run3
@@ -82,10 +83,17 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
       SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
+if (options.inputFiles[0]).split(".")[-1]=="txt":
+    inputfiles = []
+    with open(options.inputFiles[0]) as f:
+        inputfiles = [line.strip() for line in f]
+    print(inputfiles)
+else:
+    inputfiles = options.inputFiles
 
 process.source = cms.Source(
       "PoolSource",
-      fileNames = cms.untracked.vstring(options.inputFiles),
+      fileNames = cms.untracked.vstring(inputfiles),
       inputCommands = cms.untracked.vstring(
             'keep *',
             'drop CSCDetIdCSCShowerDigiMuonDigiCollection_simCscTriggerPrimitiveDigis_*_*'
@@ -183,7 +191,7 @@ process.output = cms.OutputModule(
 )
 #output for analyzer
 process.TFileService = cms.Service("TFileService",
-                                       fileName = cms.string('plots.root')
+                                       fileName = cms.string('plots_%s.root'%options.runNumber)
                                    )
 
 

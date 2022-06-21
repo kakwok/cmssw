@@ -29,6 +29,7 @@ public:
   void beginJob() override;
 private:
   bool areSameShowers(const CSCShowerDigi& lhs, const CSCShowerDigi& rhs) const;
+  bool areSameShowers(const CSCShowerDigi& lhs, const CSCShowerDigi& rhs,bool isALCT) const;
   void fillhist(TH2D * h , int chamber, int sr) const;
 
   edm::InputTag compDigiProducer_;
@@ -45,6 +46,15 @@ private:
   edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
 
   TH1D* counters_;
+  TH1D* h_clctBx_data_nom_  ;
+  TH1D* h_clctBx_data_tight_;
+  TH1D* h_clctBx_emul_nom_  ;
+  TH1D* h_clctBx_emul_tight_;
+  TH1D* h_alctBx_data_nom_  ;
+  TH1D* h_alctBx_data_tight_;
+  TH1D* h_alctBx_emul_nom_  ;
+  TH1D* h_alctBx_emul_tight_;
+
   TH2D* lctShowerDataNomSummary_denom_;
   TH2D* lctShowerDataNomSummary_num_;
   TH2D* alctShowerDataNomSummary_denom_;
@@ -97,6 +107,16 @@ void CSCShowerAnalyzer::beginJob(){
 
      edm::Service<TFileService> fs;
   counters_ =      fs->make<TH1D>("Counters", "Counters", 10, 0,10);
+  h_clctBx_data_nom_   =     fs->make<TH1D>("clctBx_data_norm", "CLCT nominal shower BX(Data)", 15, 0,15);
+  h_clctBx_data_tight_ =     fs->make<TH1D>("clctBx_data_tight", "CLCT tight shower BX(Data)", 15, 0,15);
+  h_clctBx_emul_nom_   =     fs->make<TH1D>("clctBx_emul_norm", "CLCT nominal shower BX(Emulation)", 15, 0,15);
+  h_clctBx_emul_tight_ =     fs->make<TH1D>("clctBx_emul_tight", "CLCT tight shower BX(Emulation)", 15, 0,15);
+
+  h_alctBx_data_nom_   =     fs->make<TH1D>("alctBx_data_norm", "ALCT nominal shower BX(Data)", 15, 0,15);
+  h_alctBx_data_tight_ =     fs->make<TH1D>("alctBx_data_tight", "ALCT tight shower BX(Data)", 15, 0,15);
+  h_alctBx_emul_nom_   =     fs->make<TH1D>("alctBx_emul_norm", "ALCT nominal shower BX(Emulation)", 15, 0,15);
+  h_alctBx_emul_tight_ =     fs->make<TH1D>("alctBx_emul_tight", "ALCT tight shower BX(Emulation)", 15, 0,15);
+
   lctShowerDataNomSummary_denom_ =
       fs->make<TH2D>("lct_cscshower_data_nom_summary_denom", "Data LCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
   lctShowerDataNomSummary_num_ = fs->make<TH2D>(
@@ -365,6 +385,7 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
             bool has_dalct_tight=false;
             bool has_dalct_nom=false;
+            int nMatched_ealct=0;
             // check TMB showers
             for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
               // check ALCT
@@ -380,22 +401,29 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
               if (dalct->isValid() and dalct->isTightInTime() ) counters_->Fill("ALCT tight",1);
               if (dalct->isValid() and dalct->isNominalInTime() ) {
                 counters_->Fill("ALCT nominal&ALCT",1);
+                h_alctBx_data_nom_->Fill(dalct->getBX());
                 if (dalct->isTightInTime()) {
                    counters_->Fill("ALCT tight&ALCT",1);
                   fillhist(alctShowerDataTightSummary_denom_, chamber,sr);
+                  h_alctBx_data_tight_->Fill(dalct->getBX());
                   has_dalct_tight=true;
                 }
                 has_dalct_nom=true;
                 fillhist(alctShowerDataNomSummary_denom_, chamber,sr);
                 // check for least one matching ALCT
                 for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
+                  if (ealct->isTightInTime()){ h_alctBx_emul_tight_->Fill(ealct->getBX());}
+                  if (ealct->isNominalInTime()){ h_alctBx_emul_nom_->Fill(ealct->getBX());}
+                  if (ealct->getBX()!=8) continue;
                   if (ealct->isValid() and areSameShowers(*dalct, *ealct)) {
                     if (dalct->isTightInTime()) {
                       fillhist(alctShowerDataTightSummary_num_, chamber,sr);
+                      h_alctBx_emul_tight_->Fill(ealct->getBX());
                       has_ealct_tight=true;
                     }
                     fillhist(alctShowerDataNomSummary_num_, chamber,sr);
                     has_ealct_nom=true;
+                    nMatched_ealct+=1;  
                   }
                 }
               }
@@ -443,47 +471,6 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
               }
             }
 
-            // ALCT vector input
-            //auto range_dataALCTshs = dataALCTshs->get(detid);
-            //auto range_emulALCT = emulALCTshs->get(detid);
-            //bool has_nominal=false;
-            //bool has_tight=false;
-            //for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
-            //    if (dalct->isTightInTime()) { has_tight=true;}
-            //    if (dalct->isNominalInTime()) { has_nominal=true;}
-            //}
-            //if (has_nominal){
-            //    if (has_tight){
-            //        fillhist(alctShowerDataTightSummary_denom_, chamber,sr);
-            //        bool found_shower = false;
-            //        for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
-            //            if (dalct->isTightInTime()){
-            //                for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
-            //                    //if (ealct->isValid() and areSameShowers(*dalct, *ealct)) {
-            //                    if (ealct->isValid() ) {
-            //                        found_shower=true;
-            //                    }
-            //                } 
-            //            }  
-            //        }
-            //        if (found_shower) fillhist(alctShowerDataTightSummary_num_, chamber,sr);
-            //    }
-            //    fillhist(alctShowerDataNomSummary_denom_, chamber,sr);
-            //    bool found_shower = false;
-            //    for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
-            //        if (dalct->isNominalInTime()){
-            //            std::cout<< " Data ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") alct isValid()= "<< dalct->isValid()<< "  bits=" <<(*dalct) <<std::endl;
-            //            for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
-            //                //if (ealct->isValid() and areSameShowers(*dalct, *ealct)) {
-            //                if (ealct->isValid() ) {
-            //                    found_shower=true;
-            //                    std::cout<< " Emul ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") alct isValid()= "<< ealct->isValid()<< "  bits=" <<(*ealct) << " same shower= "<< areSameShowers(*dalct, *ealct)<<std::endl;
-            //                }
-            //            } 
-            //        }  
-            //    }
-            //    if (found_shower) fillhist(alctShowerDataNomSummary_num_, chamber,sr);
-            //}
 
             for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
               bool isMatched = false;
@@ -492,9 +479,10 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   fillhist(alctShowerEmulTightSummary_denom_, chamber,sr);
                 }
                 fillhist(alctShowerEmulNomSummary_denom_, chamber,sr);
-                // check for least one matching ALCT
+                // check for least one matching ALCT vector
+                //for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
                 for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
-                  if (areSameShowers(*dalct, *ealct))
+                  if (areSameShowers(*dalct, *ealct) )
                     isMatched = true;
                 }
                 // only fill when it is not matched to an ALCT
@@ -518,17 +506,21 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     std::cout<< " Data CLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
                     std::cout<< " clct (isNominal,isTight)= ("<< dclct->isNominalInTime() <<","<<dclct->isTightInTime()<<")";
                     std::cout<< " bits=" <<(*dclct) <<std::endl;
+                h_clctBx_data_nom_->Fill(dclct->getBX());
                 if (dclct->isTightInTime()) {
                   fillhist(clctShowerDataTightSummary_denom_, chamber,sr);
+                  h_clctBx_data_tight_->Fill(dclct->getBX());
                 }
                 fillhist(clctShowerDataNomSummary_denom_, chamber,sr);
                 // check for least one matching CLCT
                 for (auto eclct = range_emulCLCT.first; eclct != range_emulCLCT.second; eclct++) {
                     std::cout<< " Emul CLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
                     std::cout<< " clct (isNominal,isTight)= ("<< eclct->isNominalInTime() <<","<<eclct->isTightInTime()<<")";
-                    std::cout<< " bits=" <<(*eclct) <<" areSameShower= "<<areSameShowers(*dclct, *eclct) <<std::endl;
+                    std::cout<< " bits=" <<(*eclct) <<" areSameShower= "<<areSameShowers(*dclct, *eclct,false) <<std::endl;
 
-                  if (eclct->isValid() and areSameShowers(*dclct, *eclct)) {
+                  if (eclct->isTightInTime()) {h_clctBx_emul_tight_->Fill(eclct->getBX());}
+                  if (eclct->isNominalInTime()) {h_clctBx_emul_nom_->Fill(eclct->getBX());}
+                  if (eclct->isValid() and areSameShowers(*dclct, *eclct,false)) {
                     if (dclct->isTightInTime()) {
                       found_eclct =true;
                       fillhist(clctShowerDataTightSummary_num_, chamber,sr);
@@ -559,7 +551,7 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 fillhist(clctShowerEmulNomSummary_denom_, chamber,sr);
                 // check for least one matching CLCT
                 for (auto dclct = range_dataCLCT.first; dclct != range_dataCLCT.second; dclct++) {
-                  if (areSameShowers(*dclct, *eclct))
+                  if (areSameShowers(*dclct, *eclct,false))
                     isMatched = true;
                 }
                 // only fill when it is not matched to an CLCT
@@ -577,23 +569,47 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
             auto range_dataLCT = dataLCTshs->get(detid);
             auto range_emulLCT = emulLCTshs->get(detid);
 
+            bool has_dlct_nom = false;
+            bool has_elct_nom = false;
+            bool has_dlct_tight = false;
+            bool has_elct_tight = false;
             for (auto dlct = range_dataLCT.first; dlct != range_dataLCT.second; dlct++) {
               if (dlct->isValid() and dlct->isNominalInTime()) {
                 if (dlct->isTightInTime()) {
                   fillhist(lctShowerDataTightSummary_denom_, chamber,sr);
+                  has_dlct_tight = true;
                 }
+                has_dlct_nom=true;
                 fillhist(lctShowerDataNomSummary_denom_, chamber,sr);
                 // check for least one matching LCT
                 for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
+
+                  if (elct->getBX()!=8) continue;
                   if (elct->isValid() and areSameShowers(*dlct, *elct)) {
                     if (dlct->isTightInTime()) {
                       fillhist(lctShowerDataTightSummary_num_, chamber,sr);
+                      has_elct_tight = true;
                     }
                     fillhist(lctShowerDataNomSummary_num_, chamber,sr);
+                    has_elct_nom = true;
                   }
                 }
               }
             }  // End of for (auto dlct = range_dataLCT.first; dlct != range_dataLCT.second; dlct++)
+
+            //printout mismatch LCT
+            if (( has_dlct_nom and !has_elct_nom) or (has_dlct_tight and !has_elct_tight)){
+                for (auto dlct = range_dataLCT.first; dlct != range_dataLCT.second; dlct++) {
+                  std::cout<< " Data matchLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
+                  std::cout<< " mlct (isNominal,isTight)= ("<< dlct->isNominalInTime() <<","<<dlct->isTightInTime()<<")";
+                  std::cout<< " bits=" <<(*dlct) <<std::endl;
+                }
+                for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
+                  std::cout<< " Emul matchLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
+                  std::cout<< " emlct (isNominal,isTight)= ("<< elct->isNominalInTime() <<","<<elct->isTightInTime()<<")";
+                  std::cout<< " bits=" <<(*elct) <<std::endl;
+                }
+            }
 
             for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
               bool isMatched = false;
@@ -624,44 +640,12 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
             for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
               if (dalct->isValid()){
-               // std::cout<< " Data ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") alct isValid()= "<< dalct->isValid()<< "  bits=" <<(*dalct) <<std::endl;
                 for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
                   if (ealct->isValid()){
-                    //std::cout<< " Emul ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") alct isValid()= "<< ealct->isValid()<< "  bits=" <<(*ealct) << " same shower= "<< areSameShowers(*dalct, *ealct)<<std::endl;
                   }
                 }  
               }
             }  // End of for (auto dalct = range_dataALCT.first; dalct != range_dataALCT.second; dalct++)
-
-            //// CLCT analysis
-            //auto range_dataCLCT = dataCLCTshs->get(detid);
-            //auto range_emulCLCT = emulCLCTshs->get(detid);
-
-            //for (auto dclct = range_dataCLCT.first; dclct != range_dataCLCT.second; dclct++) {
-            //  if (dclct->isValid()){
-            //    std::cout<< " Data CLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") clct isValid()= "<< dclct->isValid()<< "  bits=" <<(*dclct) <<std::endl;
-            //    for (auto eclct = range_emulCLCT.first; eclct != range_emulCLCT.second; eclct++) {
-            //      if (eclct->isValid()){
-            //        std::cout<< " Emul CLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") clct isValid()= "<< eclct->isValid()<< "  bits=" <<(*eclct) <<std::endl;
-            //      }
-            //    }  
-            //  }
-            //}  // End of for (auto dclct = range_dataCLCT.first; dclct != range_dataCLCT.second; dclct++)
-
-            //// LCT analysis
-            //auto range_dataLCT = dataLCTshs->get(detid);
-            //auto range_emulLCT = emulLCTshs->get(detid);
-
-            //for (auto dlct = range_dataLCT.first; dlct != range_dataLCT.second; dlct++) {
-            //  if (dlct->isValid()){
-            //    std::cout<< " Data combLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") lct isValid()= "<< dlct->isValid()<< "  bits=" <<(*dlct) <<std::endl;
-            //    for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
-            //      if (elct->isValid()){
-            //        std::cout<< " Emul combLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") lct isValid()= "<< elct->isValid()<< "  bits=" <<(*elct) <<std::endl;
-            //      }
-            //    }  
-            //  }
-            //}  // End of for (auto dlct = range_dataCLCT.first; dlct != range_dataCLCT.second; dlct++)
 
           }
         }
@@ -678,14 +662,22 @@ void CSCShowerAnalyzer::fillhist(TH2D* h,int chamber,int sr) const{
        h->Fill(chamber, sr);
     return;
 }
-bool CSCShowerAnalyzer::areSameShowers(const CSCShowerDigi& lhs, const CSCShowerDigi& rhs) const {
+bool CSCShowerAnalyzer::areSameShowers(const CSCShowerDigi& dataShower, const CSCShowerDigi& rhs) const {
+  return areSameShowers(dataShower,rhs,true);
+}
+bool CSCShowerAnalyzer::areSameShowers(const CSCShowerDigi& dataShower, const CSCShowerDigi& rhs, bool isALCT) const {
   bool returnValue = false;
-  //std::cout<< "(dataID="<<lhs.getCSCID()<<",emulID="<<rhs.getCSCID();
-  //if (lhs.isValid() == rhs.isValid() && lhs.getCSCID() == rhs.getCSCID() && lhs.bitsInTime() == rhs.bitsInTime() &&
-  //    lhs.bitsOutOfTime() == rhs.bitsOutOfTime()) {
-  if (lhs.isValid() == rhs.isValid()  && lhs.bitsInTime() == rhs.bitsInTime() &&
-      lhs.bitsOutOfTime() == rhs.bitsOutOfTime()) {
-    returnValue = true;
+  int dataBXshift = 3;
+  if (!isALCT) {dataBXshift=2;
+    if (dataShower.isValid() == rhs.isValid()  && dataShower.bitsInTime() == rhs.bitsInTime() &&
+        dataShower.bitsOutOfTime() == rhs.bitsOutOfTime() ) {
+      returnValue = true;
+    }
+  }else{
+    if (dataShower.isValid() == rhs.isValid()  && dataShower.bitsInTime() == rhs.bitsInTime() &&
+        dataShower.bitsOutOfTime() == rhs.bitsOutOfTime() && dataShower.getBX()+dataBXshift == rhs.getBX()) {
+      returnValue = true;
+    }
   }
   return returnValue;
 }
