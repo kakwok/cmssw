@@ -6,16 +6,17 @@
 using namespace std;
 
 /// Constructors
-CSCShowerDigi::CSCShowerDigi(const uint16_t bitsInTime, const uint16_t bitsOutOfTime, const uint16_t cscID)
-    : bitsInTime_(bitsInTime), bitsOutOfTime_(bitsOutOfTime), cscID_(cscID) {}
+CSCShowerDigi::CSCShowerDigi(const uint16_t bitsInTime, const uint16_t bitsOutOfTime, const uint16_t cscID, const uint16_t bx)
+    : bitsInTime_(bitsInTime), bitsOutOfTime_(bitsOutOfTime), cscID_(cscID), bx_(bx) {}
 
 /// Default
-CSCShowerDigi::CSCShowerDigi() : bitsInTime_(0), bitsOutOfTime_(0), cscID_(0) {}
+CSCShowerDigi::CSCShowerDigi() : bitsInTime_(0), bitsOutOfTime_(0), cscID_(0), bx_(0) {}
 
 void CSCShowerDigi::clear() {
   bitsInTime_ = 0;
   bitsOutOfTime_ = 0;
   cscID_ = 0;
+  bx_ = 0;
 }
 
 bool CSCShowerDigi::isValid() const {
@@ -36,5 +37,5 @@ bool CSCShowerDigi::isNominalOutOfTime() const { return bitsOutOfTime() >= kNomi
 bool CSCShowerDigi::isTightOutOfTime() const { return bitsOutOfTime() >= kTight; }
 
 std::ostream& operator<<(std::ostream& o, const CSCShowerDigi& digi) {
-  return o << "CSC Shower: in-time bits " << digi.bitsInTime() << ", out-of-time bits " << digi.bitsOutOfTime();
+  return o << "CSC Shower: bx "<< digi.getBX() <<", in-time bits " << digi.bitsInTime() << ", out-of-time bits " << digi.bitsOutOfTime();
 }
