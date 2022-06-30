@@ -380,10 +380,12 @@ std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const {
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
   std::vector<CSCShowerDigi> showerOut;
+  bool isFirstNominal = false;
   for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
-    if (showers_[bx].isValid()) {
-	showerOut.push_back(showers_[bx]);
-	std::cout <<"Chamberid "<< cscId_  << showers_[bx] << std::endl;
+    if (showers_[bx].isNominalInTime() && isFirstNominal==false){
+	    showerOut.push_back(showers_[bx]);
+        isFirstNominal=true;
+	//std::cout <<"Chamberid "<< cscId_  << showers_[bx] << std::endl;
     }
   return showerOut; 
 }

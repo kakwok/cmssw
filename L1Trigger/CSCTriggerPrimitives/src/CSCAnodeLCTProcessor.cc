@@ -1285,11 +1285,23 @@ std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::getAllShower() const {
    
 /** Returns shower bits */
 std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const { 
-  unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width/2;
-  unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width/2;
+  int minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width/2;
+  int maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width/2;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++)
-    if (anode_showers_[bx].isValid())  showerOut.push_back(anode_showers_[bx]);
+  int minBXdiff=99;
+  //bool isFirstNominal = false;
+  for (int bx = minbx_readout; bx < maxbx_readout;  bx++)
+    if (anode_showers_[bx].isNominalInTime() ){
+           std::cout<<"anode_showers bx= "<< bx<< " "<<anode_showers_[bx]<<std::endl;
+           if ( std::abs(bx-CSCConstants::LCT_CENTRAL_BX+3) < minBXdiff) minBXdiff = bx;
+          //showerOut.push_back(anode_showers_[bx]);
+   //       isFirstNominal=true;
+    }
+   std::cout<<"minBx bx= "<< minBXdiff << std::endl;
+  for (int bx = minbx_readout; bx < maxbx_readout;  bx++){
+    if (bx==minBXdiff )showerOut.push_back(anode_showers_[bx]);
+  }
+    
   return showerOut; 
 }
 
@@ -1402,7 +1414,7 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
         }
       }
     }
-    std::cout << "chamberid "<< cscId_ <<" ALCTHMT, BX "<< bx <<" nlayer "<< layersWithHits[bx].size() <<" nhits "<< this_hitsInTime <<" hmt "<< this_inTimeHMT << std::endl;
+    //std::cout << "chamberid "<< cscId_ <<" ALCTHMT, BX "<< bx <<" nlayer "<< layersWithHits[bx].size() <<" nhits "<< this_hitsInTime <<" hmt "<< this_inTimeHMT << std::endl;
     anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx); 
   }
 }

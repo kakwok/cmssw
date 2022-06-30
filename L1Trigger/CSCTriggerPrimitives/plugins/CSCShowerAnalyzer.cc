@@ -414,7 +414,6 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++) {
                   if (ealct->isTightInTime()){ h_alctBx_emul_tight_->Fill(ealct->getBX());}
                   if (ealct->isNominalInTime()){ h_alctBx_emul_nom_->Fill(ealct->getBX());}
-                  if (ealct->getBX()!=8) continue;
                   if (ealct->isValid() and areSameShowers(*dalct, *ealct)) {
                     if (dalct->isTightInTime()) {
                       fillhist(alctShowerDataTightSummary_num_, chamber,sr);
@@ -480,8 +479,8 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 }
                 fillhist(alctShowerEmulNomSummary_denom_, chamber,sr);
                 // check for least one matching ALCT vector
-                //for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
-                for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
+                //for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
+                for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
                   if (areSameShowers(*dalct, *ealct) )
                     isMatched = true;
                 }
@@ -584,7 +583,6 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 // check for least one matching LCT
                 for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
 
-                  if (elct->getBX()!=8) continue;
                   if (elct->isValid() and areSameShowers(*dlct, *elct)) {
                     if (dlct->isTightInTime()) {
                       fillhist(lctShowerDataTightSummary_num_, chamber,sr);
