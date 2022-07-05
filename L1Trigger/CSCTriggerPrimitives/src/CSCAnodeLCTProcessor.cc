@@ -1289,17 +1289,21 @@ std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const {
   int maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width/2;
   std::vector<CSCShowerDigi> showerOut;
   int minBXdiff=99;
+  int minBX=0;
   //bool isFirstNominal = false;
   for (int bx = minbx_readout; bx < maxbx_readout;  bx++)
-    if (anode_showers_[bx].isNominalInTime() ){
-           std::cout<<"anode_showers bx= "<< bx<< " "<<anode_showers_[bx]<<std::endl;
-           if ( std::abs(bx-CSCConstants::LCT_CENTRAL_BX+3) < minBXdiff) minBXdiff = bx;
+    if (anode_showers_[bx].isValid() ){
+  //         std::cout<<"anode_showers bx= "<< bx<< " "<<anode_showers_[bx]<<std::endl;
+           if ( std::abs(bx-CSCConstants::LCT_CENTRAL_BX) < minBXdiff){
+                 minBXdiff = std::abs(bx-CSCConstants::LCT_CENTRAL_BX);
+                 minBX = bx;
+          }
           //showerOut.push_back(anode_showers_[bx]);
    //       isFirstNominal=true;
     }
-   std::cout<<"minBx bx= "<< minBXdiff << std::endl;
+  //if (minBXdiff!=99) std::cout<<"minBx bx= "<< minBXdiff << " minBX = "<< minBX<<std::endl;
   for (int bx = minbx_readout; bx < maxbx_readout;  bx++){
-    if (bx==minBXdiff )showerOut.push_back(anode_showers_[bx]);
+    if (bx==minBX )showerOut.push_back(anode_showers_[bx]);
   }
     
   return showerOut; 
