@@ -117,7 +117,7 @@ CSCShowerAnalyzer::~CSCShowerAnalyzer() {};
 void CSCShowerAnalyzer::beginJob(){
 
      edm::Service<TFileService> fs;
-  counters_ =      fs->make<TH1D>("Counters", "Counters", 10, 0,10);
+  counters_ =      fs->make<TH1D>("Counters", "Counters", 15, 0,15);
   h_clctBx_data_nom_   =     fs->make<TH1D>("clctBx_data_norm", "CLCT nominal shower BX(Data)", 15, 0,15);
   h_clctBx_data_tight_ =     fs->make<TH1D>("clctBx_data_tight", "CLCT tight shower BX(Data)", 15, 0,15);
   h_clctBx_emul_nom_   =     fs->make<TH1D>("clctBx_emul_norm", "CLCT nominal shower BX(Emulation)", 15, 0,15);
@@ -288,8 +288,18 @@ void CSCShowerAnalyzer::beginJob(){
   counters_->GetXaxis()->SetBinLabel(2, "ALCT loose&ALCT") ;
   counters_->GetXaxis()->SetBinLabel(3, "ALCT nominal") ;
   counters_->GetXaxis()->SetBinLabel(4, "ALCT nominal&ALCT") ;
-  counters_->GetXaxis()->SetBinLabel(5, "ALCT tight") ;
-  counters_->GetXaxis()->SetBinLabel(6, "ALCT tight&ALCT") ;
+  counters_->GetXaxis()->SetBinLabel(5, "ALCT nominal&LCT") ;
+  counters_->GetXaxis()->SetBinLabel(6, "ALCT tight") ;
+  counters_->GetXaxis()->SetBinLabel(7, "ALCT tight&ALCT") ;
+  counters_->GetXaxis()->SetBinLabel(8, "CLCT nominal") ;
+  counters_->GetXaxis()->SetBinLabel(9, "CLCT nominal&LCT") ;
+  counters_->GetXaxis()->SetBinLabel(10,"CLCT tight") ;
+  counters_->GetXaxis()->SetBinLabel(11,"CLCT tight&LCT") ;
+  counters_->GetXaxis()->SetBinLabel(12,"LCT nominal") ;
+  counters_->GetXaxis()->SetBinLabel(13,"LCT nominal&LCT") ;
+  counters_->GetXaxis()->SetBinLabel(14,"LCT tight") ;
+  counters_->GetXaxis()->SetBinLabel(15,"LCT tight&LCT") ;
+
   // y labels
   for (int ybin = 1; ybin <= 9; ++ybin) {
     lctShowerDataNomSummary_denom_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
@@ -438,6 +448,7 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
             auto range_emulALCT    = emulALCTshs->get(detid);
 
             bool has_alct = false;
+            bool has_lct = false;
             bool has_ealct_tight=false;
             bool has_ealct_nom=false;
 
@@ -451,23 +462,29 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     h_alct_thres_data_v_emul->Fill(dalct->bitsInTime(),ealct->bitsInTime());
                 }
             }
-            for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
-              // check ALCT
-              for (auto dalct_trk = range_dataALCT.first; dalct_trk != range_dataALCT.second; dalct_trk++) {
-                if (dalct_trk->isValid()){ 
-                    has_alct= true;
-                    //std::cout<< (*dalct_trk)<<std::endl;
-                }
+           // check ALCT
+            for (auto dalct_trk = range_dataALCT.first; dalct_trk != range_dataALCT.second; dalct_trk++) {
+              if (dalct_trk->isValid()){ 
+                  has_alct= true;
               }
+            }
+           // check LCT
+            for (auto dlct_trk = range_dataLCT.first; dlct_trk != range_dataLCT.second; dlct_trk++) {
+              if (dlct_trk->isValid()) has_lct=true;
+            }
+
+            for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
               if (dalct->isValid()) counters_->Fill("ALCT loose",1);
               if (dalct->isValid() and has_alct) counters_->Fill("ALCT loose&ALCT",1);
               if (dalct->isValid() and dalct->isNominalInTime() ) counters_->Fill("ALCT nominal",1);
               if (dalct->isValid() and dalct->isTightInTime() ) counters_->Fill("ALCT tight",1);
               if (dalct->isValid() and dalct->isNominalInTime() ) {
-                counters_->Fill("ALCT nominal&ALCT",1);
+                if (has_alct) counters_->Fill("ALCT nominal&ALCT",1);
+                if (has_lct) counters_->Fill("ALCT nominal&LCT",1);
                 h_alctBx_data_nom_->Fill(dalct->getBX());
                 if (dalct->isTightInTime()) {
-                   counters_->Fill("ALCT tight&ALCT",1);
+                  if (has_alct) counters_->Fill("ALCT tight&ALCT",1);
+                  if (has_lct) counters_->Fill("ALCT tight&LCT",1);
                   fillhist(alctShowerDataTightSummary_denom_, chamber,sr);
                   h_alctBx_data_tight_->Fill(dalct->getBX());
                   has_dalct_tight=true;
@@ -542,61 +559,58 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                   fillhist(alctShowerEmulTightSummary_denom_, chamber,sr);
                 }
                 fillhist(alctShowerEmulNomSummary_denom_, chamber,sr);
-                // check for least one matching ALCT vector
-                //for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
                 for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
                   if (areSameShowers(*dalct, *ealct) )
                     isMatched = true;
                 }
                 // only fill when it is not matched to an ALCT
                 // to understand if the emulator is producing too many ALCTs
-                if (!isMatched) {
+                //if (!isMatched) 
+                if (!isMatched && has_lct) { // filter out mismatches without lct
                   if (ealct->isTightInTime()) {
                     fillhist(alctShowerEmulTightSummary_num_, chamber,sr);
                   }
                   fillhist(alctShowerEmulNomSummary_num_, chamber,sr);
-                for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
-                    std::cout<< " Data ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
-                    std::cout<< " alct (isNominal,isTight)= ("<< dalct->isNominalInTime() <<","<<dalct->isTightInTime()<<")";
-                    std::cout<< " bits=" <<(*dalct) <<std::endl;
-                }
-                    std::cout<< " Emul ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
-                    std::cout<< " alct (isNominal,isTight)= ("<< ealct->isNominalInTime() <<","<<ealct->isTightInTime()<<")";
-                    std::cout<< " bits=" <<(*ealct) <<std::endl;
-                for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
-                    std::cout<< " Data ALCT[TMB]: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
-                    std::cout<< " alct (isNominal,isTight)= ("<< dalct->isNominalInTime() <<","<<dalct->isTightInTime()<<")";
-                    std::cout<< " bits=" <<(*dalct) <<std::endl;
-                }
-                int nHits_Bx8 = 0;
-                int nHits_BxAll = 0;
-                int nLayersWithHit = 0;
-                for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
-                    bool hasBX8hit = false;
-                    CSCDetId wireId(endc, stat, ring, chid, ilayer);
-                    auto range_wireDigis   = wireDigis->get(wireId);
-                    for(auto wire = range_wireDigis.first; wire!=range_wireDigis.second;wire++){
-                        std::vector<int> tbins = wire->getTimeBinsOn();
-                        for (auto & tbin : tbins) { 
-                            if (tbin==8){
-                                 nHits_Bx8++;
-                                 hasBX8hit=true;
-                            }
-                        }
-                        nHits_BxAll++;
-                        std::cout<<"  Layer= "<<ilayer<< "  wires= " <<(*wire) <<std::endl;
-                    }    
-                    if (hasBX8hit) nLayersWithHit++;
-                }
-                std::cout<<"  nHits Bx8= "<<nHits_Bx8<< "  nHits_BxAll = " <<nHits_BxAll <<" nLayersWithBX8Hit = "<< nLayersWithHit<<std::endl;
-              for (auto dalct_trk = range_dataALCT.first; dalct_trk != range_dataALCT.second; dalct_trk++) {
-                    std::cout<<"    ALCT_trk=" <<(*dalct_trk)<<std::endl;
-              }
-              for (auto dlct_trk = range_dataLCT.first; dlct_trk != range_dataLCT.second; dlct_trk++) {
-                    std::cout<<"    LCT_trk=" <<(*dlct_trk)<<std::endl;
-              }
-
-
+                  for (auto dalct = range_dataALCTshs.first; dalct != range_dataALCTshs.second; dalct++) {
+                      std::cout<< " Data ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
+                      std::cout<< " alct (isNominal,isTight)= ("<< dalct->isNominalInTime() <<","<<dalct->isTightInTime()<<")";
+                      std::cout<< " bits=" <<(*dalct) <<std::endl;
+                  }
+                      std::cout<< " Emul ALCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
+                      std::cout<< " alct (isNominal,isTight)= ("<< ealct->isNominalInTime() <<","<<ealct->isTightInTime()<<")";
+                      std::cout<< " bits=" <<(*ealct) <<std::endl;
+                  for (auto dalct = range_dataALCT_TMBshs.first; dalct != range_dataALCT_TMBshs.second; dalct++) {
+                      std::cout<< " Data ALCT[TMB]: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
+                      std::cout<< " alct (isNominal,isTight)= ("<< dalct->isNominalInTime() <<","<<dalct->isTightInTime()<<")";
+                      std::cout<< " bits=" <<(*dalct) <<std::endl;
+                  }
+                  int nHits_Bx8 = 0;
+                  int nHits_BxAll = 0;
+                  int nLayersWithHit = 0;
+                  for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
+                      bool hasBX8hit = false;
+                      CSCDetId wireId(endc, stat, ring, chid, ilayer);
+                      auto range_wireDigis   = wireDigis->get(wireId);
+                      for(auto wire = range_wireDigis.first; wire!=range_wireDigis.second;wire++){
+                          std::vector<int> tbins = wire->getTimeBinsOn();
+                          for (auto & tbin : tbins) { 
+                              if (tbin==8){
+                                   nHits_Bx8++;
+                                   hasBX8hit=true;
+                              }
+                          }
+                          nHits_BxAll++;
+                          std::cout<<"  Layer= "<<ilayer<< "  wires= " <<(*wire) <<std::endl;
+                      }    
+                      if (hasBX8hit) nLayersWithHit++;
+                  }
+                  std::cout<<"  nHits Bx8= "<<nHits_Bx8<< "  nHits_BxAll = " <<nHits_BxAll <<" nLayersWithBX8Hit = "<< nLayersWithHit<<std::endl;
+                  for (auto dalct_trk = range_dataALCT.first; dalct_trk != range_dataALCT.second; dalct_trk++) {
+                        std::cout<<"    ALCT_trk=" <<(*dalct_trk)<<std::endl;
+                  }
+                  for (auto dlct_trk = range_dataLCT.first; dlct_trk != range_dataLCT.second; dlct_trk++) {
+                        std::cout<<"    LCT_trk=" <<(*dlct_trk)<<std::endl;
+                  }
                 }
               }
             }  // End of for (auto ealct = range_emulALCT.first; ealct != range_emulALCT.second; ealct++)
@@ -613,13 +627,17 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
             }
 
             for (auto dclct = range_dataCLCT.first; dclct != range_dataCLCT.second; dclct++) {
+              if (dclct->isValid() and dclct->isNominalInTime() ) counters_->Fill("CLCT nominal",1);
+              if (dclct->isValid() and dclct->isTightInTime() ) counters_->Fill("CLCT tight",1);
               if (dclct->isValid() and dclct->isNominalInTime()) {
                 bool found_eclct = false;
                     std::cout<< " Data CLCT: (endcap,station,ring,chamber) = ("<< endc<<","<<stat<< ","<< ring<< ","<< chamber << ") ";
                     std::cout<< " clct (isNominal,isTight)= ("<< dclct->isNominalInTime() <<","<<dclct->isTightInTime()<<")";
                     std::cout<< " bits=" <<(*dclct) <<std::endl;
                 h_clctBx_data_nom_->Fill(dclct->getBX());
+                if (has_lct) counters_->Fill("CLCT nominal&LCT",1);
                 if (dclct->isTightInTime()) {
+                  if (has_lct) counters_->Fill("CLCT tight&LCT",1);
                   fillhist(clctShowerDataTightSummary_denom_, chamber,sr);
                   h_clctBx_data_tight_->Fill(dclct->getBX());
                 }
@@ -668,7 +686,7 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 }
                 // only fill when it is not matched to an CLCT
                 // to understand if the emulator is producing too many CLCTs
-                if (!isMatched) {
+                if (!isMatched && has_lct) {
                   if (eclct->isTightInTime()) {
                     fillhist(clctShowerEmulTightSummary_num_, chamber,sr);
                   }
@@ -694,8 +712,12 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
             }
 
             for (auto dlct = range_dataLCTshs.first; dlct != range_dataLCTshs.second; dlct++) {
+              if (dlct->isValid() and dlct->isNominalInTime() ) counters_->Fill("LCT nominal",1);
+              if (dlct->isValid() and dlct->isTightInTime() ) counters_->Fill("LCT tight",1);
               if (dlct->isValid() and dlct->isNominalInTime()) {
+                if (has_lct) counters_->Fill("LCT nominal&LCT",1);
                 if (dlct->isTightInTime()) {
+                  if (has_lct) counters_->Fill("LCT tight&LCT",1);
                   fillhist(lctShowerDataTightSummary_denom_, chamber,sr);
                   has_dlct_tight = true;
                 }
@@ -764,7 +786,7 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 }
                 // only fill when it is not matched to an LCT
                 // to understand if the emulator is producing too many LCTs
-                if (!isMatched) {
+                if (!isMatched && has_lct) {
                   if (elct->isTightInTime()) {
                     fillhist(lctShowerEmulTightSummary_num_, chamber,sr);
                   }
