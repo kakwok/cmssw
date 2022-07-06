@@ -169,24 +169,21 @@ CSCShowerDigi CSCTMBHeader2020_GEM::showerDigi(uint32_t idlayer) const {
   //L1A_TMB_WINDOW is not included in below formula
   //correct version:  CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win + L1A_TMB_WINDOW/2;
   // same for anode HMT and cathode HMT
-  //uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.hmt_match_win;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   CSCShowerDigi result(hmt_bits & 0x3, (hmt_bits >> 2) & 0x3, cscid, bx);  // 2-bits intime, 2-bits out of time
   return result;
 }
 
 CSCShowerDigi CSCTMBHeader2020_GEM::anodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
- // uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.hmt_match_win;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win;
   CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid, bx);  // 2-bits intime, no out of time
   return result;
 }
 
 CSCShowerDigi CSCTMBHeader2020_GEM::cathodeShowerDigi(uint32_t idlayer) const {
   uint16_t cscid = bits.cscID;
-  //uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win - bits.hmt_match_win + 3;
-  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.hmt_match_win;
+  uint16_t bx  = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win - bits.hmt_match_win + 3;
   CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid, bx);  // 2-bits intime, no out of time
   return result;
 }
