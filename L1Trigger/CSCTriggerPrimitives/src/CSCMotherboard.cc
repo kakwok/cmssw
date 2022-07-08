@@ -379,11 +379,19 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
 std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const { 
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size/2;
+  unsigned minBXdiff = 2*tmb_l1a_window_size;//impossible value
+  unsigned minBX = 0;
   std::vector<CSCShowerDigi> showerOut;
-  for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
-    if (showers_[bx].isValid()) {
-	showerOut.push_back(showers_[bx]);
+  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++){
+    unsigned bx_diff =  (bx > bx-CSCConstants::LCT_CENTRAL_BX ) ? bx-CSCConstants::LCT_CENTRAL_BX : CSCConstants::LCT_CENTRAL_BX-bx;
+    if (showers_[bx].isValid() and bx_diff < minBXdiff){
+	minBXdiff = bx_diff;
+	minBX = bx;
     }
+  }
+
+  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++)
+      if (bx == minBX) showerOut.push_back(showers_[bx]); 
   return showerOut; 
 }
 

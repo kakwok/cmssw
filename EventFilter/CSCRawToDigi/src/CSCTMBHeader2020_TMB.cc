@@ -266,13 +266,24 @@ void CSCTMBHeader2020_TMB::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
 
 void CSCTMBHeader2020_TMB::addShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
+  //not valid LCT shower, then in-time bits must be 0
+  if (not digi.isValid()) hmt_bits =  ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
+  if (digi.isValid())
+      bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  else
+      bits.pop_l1a_match_win = 3;//default value
 }
 
 void CSCTMBHeader2020_TMB::addAnodeShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  if (not digi.isValid()) hmt_bits = 0;
   bits.anode_hmt = hmt_bits;
+  if (digi.isValid())
+      bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  else
+      bits.pop_l1a_match_win = 3;//default value
 }
 
 void CSCTMBHeader2020_TMB::addCathodeShower(const CSCShowerDigi& digi) {

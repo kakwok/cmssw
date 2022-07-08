@@ -1287,9 +1287,19 @@ std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::getAllShower() const {
 std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::readoutShower() const { 
   unsigned minbx_readout = CSCConstants::LCT_CENTRAL_BX - l1a_window_width/2;
   unsigned maxbx_readout = CSCConstants::LCT_CENTRAL_BX + l1a_window_width/2;
+  unsigned minBXdiff = 2*l1a_window_width;//impossible value
+  unsigned minBX = 0;
   std::vector<CSCShowerDigi> showerOut;
+  for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++){
+    unsigned bx_diff =  (bx > bx-CSCConstants::LCT_CENTRAL_BX ) ? bx-CSCConstants::LCT_CENTRAL_BX : CSCConstants::LCT_CENTRAL_BX-bx;
+    if (anode_showers_[bx].isValid() and bx_diff < minBXdiff){
+	minBXdiff = bx_diff;
+	minBX = bx;
+    }
+  }
+
   for (unsigned bx = minbx_readout; bx < maxbx_readout;  bx++)
-    if (anode_showers_[bx].isValid())  showerOut.push_back(anode_showers_[bx]);
+      if (bx == minBX) showerOut.push_back(anode_showers_[bx]); 
   return showerOut; 
 }
 

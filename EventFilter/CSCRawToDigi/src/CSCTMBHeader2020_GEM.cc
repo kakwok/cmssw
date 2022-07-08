@@ -285,18 +285,44 @@ void CSCTMBHeader2020_GEM::addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) {
 
 void CSCTMBHeader2020_GEM::addShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = (digi.bitsInTime() & 0x3) + ((digi.bitsOutOfTime() & 0x3) << 2);
+  //not valid LCT shower, then in-time bits must be 0
+  if (not digi.isValid()) hmt_bits =  ((digi.bitsOutOfTime() & 0x3) << 2);
   bits.MPC_Muon_HMT_bit0 = hmt_bits & 0x1;
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
+  //to keep pop_l1a_match_win 
+  if (digi.isValid())
+      bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  else
+      bits.pop_l1a_match_win = 3;//default value
 }
 
 void CSCTMBHeader2020_GEM::addAnodeShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  if (not digi.isValid()) hmt_bits = 0;
   bits.anode_hmt = hmt_bits;
+  if (not(bits.MPC_Muon_HMT_bit0 or bits.MPC_Muon_HMT_high) and digi.isValid())
+      bits.pop_l1a_match_win = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  else if (not(digi.isValid()))
+      bits.pop_l1a_match_win = 3;//default value
 }
 
 void CSCTMBHeader2020_GEM::addCathodeShower(const CSCShowerDigi& digi) {
   uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  if (not digi.isValid()) hmt_bits = 0;
   bits.cathode_hmt = hmt_bits;
+  bits.hmt_nhits_bit0 = digi.getComparatorNHits() & 0x1;
+  bits.hmt_nhits_bit1 = (digi.getComparatorNHits() >> 1) & 0x1;
+  bits.hmt_nhits_bits_high = (digi.getComparatorNHits() >> 2) & 0x1F;
+  if (bits.MPC_Muon_HMT_bit0 or bits.MPC_Muon_HMT_high or bits.anode_hmt){
+      //pop_l1a_match_win is assigned
+      bits.hmt_match_win = CSCConstants::LCT_CENTRAL_BX - bits.pop_l1a_match_win + 3 - digi.getBX();
+  }else if (digi.isValid()){
+      bits.pop_l1a_match_win = 3;//default value
+      bits.hmt_match_win     = CSCConstants::LCT_CENTRAL_BX - digi.getBX();
+  }else {
+      bits.pop_l1a_match_win = 3;//default value
+      bits.hmt_match_win  = 0; //no HMT case
+  }
 }
 
 void CSCTMBHeader2020_GEM::print(std::ostream& os) const {
