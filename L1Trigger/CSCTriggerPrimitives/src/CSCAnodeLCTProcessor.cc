@@ -1402,7 +1402,7 @@ void CSCAnodeLCTProcessor::encodeHighMultiplicityBits(){
         }
       }
     }
-    std::cout << "chamberid "<< cscId_ <<" ALCTHMT, BX "<< bx <<" nlayer "<< layersWithHits[bx].size() <<" nhits "<< this_hitsInTime <<" hmt "<< this_inTimeHMT << std::endl;
-    anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx); 
+    //ALCT shower construction with showerType_=1, comparatorhits_= 0;
+    anode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx, 1, this_hitsInTime, 0); 
   }
 }

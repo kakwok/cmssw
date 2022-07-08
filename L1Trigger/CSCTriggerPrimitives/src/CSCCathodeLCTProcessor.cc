@@ -178,8 +178,6 @@ void CSCCathodeLCTProcessor::clear() {
     secondCLCT[bx].clear();
     cathode_showers_[bx].clear();
   }
-  // cathode_showers_.clear();
-  //inTimeHMT_ = 0;
 }
 
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
@@ -1253,13 +1251,11 @@ void CSCCathodeLCTProcessor::encodeHighMultiplicityBits(){
         if (this_hitsInTime >= station_thresholds[i]) {
           this_inTimeHMT = i + 1;
           dead_count = deadtime; 
-	  std::cout <<" test threshold "<< station_thresholds[i] <<" nhits "<< this_hitsInTime <<" HMTbits "<< this_inTimeHMT << std::endl;
         }
       }
     }
-    std::cout << "chamberid "<< cscId_ <<" CLCTHMT, BX "<< bx <<" nlayer "<< layersWithHits[bx].size() <<" nhits "<< this_hitsInTime <<" hmt "<< this_inTimeHMT << std::endl;
-    std::cout <<"\t status "<< (dead_status ? "deadtime" : "active") <<" ispeak "<< (isPeak ? "peak":"notpeak") <<" single Bx hits "<< hitsInTime[bx] << std::endl;
-    cathode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx);
+    //CLCTshower constructor with showerType_ = 2, wirehits = 0;
+    cathode_showers_[bx] = CSCShowerDigi(this_inTimeHMT, false, theTrigChamber, bx, 2, 0, this_hitsInTime);
   }
 
 }

@@ -383,7 +383,6 @@ std::vector<CSCShowerDigi> CSCMotherboard::readoutShower() const {
   for (unsigned bx = minbx_readout; bx < maxbx_readout; bx++)
     if (showers_[bx].isValid()) {
 	showerOut.push_back(showers_[bx]);
-	std::cout <<"Chamberid "<< cscId_  << showers_[bx] << std::endl;
     }
   return showerOut; 
 }
@@ -612,17 +611,19 @@ CSCCLCTDigi CSCMotherboard::getBXShiftedCLCT(const CSCCLCTDigi& cLCT) const {
 void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi * cathode_showers, bool andlogic){
 
   CSCShowerDigi ashower, cshower;
+  bool used_cshower_mask[CSCConstants::MAX_CLCT_TBINS] = {false};
   for (unsigned bx = 0; bx < CSCConstants::MAX_ALCT_TBINS; bx++){
     ashower = anode_showers[bx];
     cshower = CSCShowerDigi();//use empty shower digi to initialize cshower
     if (ashower.isValid()){
       for (unsigned mbx = 0; mbx < match_trig_window_size; mbx++) {
         int cbx = bx + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
-        //check bx range [0, CSCConstants::MAX_LCT_TBINS)
+        //check bx range [0, CSCConstants::MAX_LCT_TBINS]
         if (cbx < 0 || cbx >= CSCConstants::MAX_CLCT_TBINS)
           continue;
-        if (cathode_showers[cbx].isValid()) {
+        if (cathode_showers[cbx].isValid() and not used_cshower_mask[cbx]) {
           cshower = cathode_showers[cbx];
+	  used_cshower_mask[cbx] = true;
           break;
         } 
       }
@@ -639,7 +640,8 @@ void CSCMotherboard::matchShowers(CSCShowerDigi * anode_showers, CSCShowerDigi *
       else if (ashower.isNominalInTime() or cshower.isNominalInTime()) matchHMT = 2;
       else if (ashower.isLooseInTime() or cshower.isLooseInTime()) matchHMT = 1;
     }
-    showers_[bx] =  CSCShowerDigi(matchHMT&3, false, ashower.getCSCID(), bx);
+    //LCTShower with showerType = 3
+    showers_[bx] =  CSCShowerDigi(matchHMT&3, false, ashower.getCSCID(), bx, 3, ashower.getWireNHits(), cshower.getComparatorNHits());
   }
 }
 
@@ -653,8 +655,6 @@ void CSCMotherboard::encodeHighMultiplicityBits() {
 
   std::copy(cshowers_v.begin(), cshowers_v.end(), cathode_showers);
   std::copy(ashowers_v.begin(), ashowers_v.end(), anode_showers);
-
-  // assign the bits
 
   // set the value according to source
   switch (thisShowerSource_) {
