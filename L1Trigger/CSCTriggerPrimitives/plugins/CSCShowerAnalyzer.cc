@@ -61,6 +61,13 @@ private:
   TH2D* h_clct_Bx_data_v_emul;
   TH2D* h_lct_Bx_data_v_emul;
 
+  TH2D* h_alct_nom_Bx_v_station;
+  TH2D* h_clct_nom_Bx_v_station;
+  TH2D* h_lct_nom_Bx_v_station;
+  TH2D* h_alct_tight_Bx_v_station;
+  TH2D* h_clct_tight_Bx_v_station;
+  TH2D* h_lct_tight_Bx_v_station;
+
   TH2D* h_alct_thres_data_v_emul;
   TH2D* h_clct_thres_data_v_emul;
   TH2D* h_lct_thres_data_v_emul;
@@ -106,6 +113,8 @@ CSCShowerAnalyzer::CSCShowerAnalyzer(const edm::ParameterSet& ps)
       dataLCTShower_token_(consumes(ps.getParameter<edm::InputTag>("dataLCTShower"))),
       emulLCTShower_token_(consumes(ps.getParameter<edm::InputTag>("emulLCTShower")))
       {
+  edm::Service<TFileService> fs;
+
   wireDigiProducer_ = ps.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = ps.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
@@ -116,7 +125,8 @@ CSCShowerAnalyzer::~CSCShowerAnalyzer() {};
 
 void CSCShowerAnalyzer::beginJob(){
 
-     edm::Service<TFileService> fs;
+  edm::Service<TFileService> fs;
+  
   counters_ =      fs->make<TH1D>("Counters", "Counters", 15, 0,15);
   h_clctBx_data_nom_   =     fs->make<TH1D>("clctBx_data_norm", "CLCT nominal shower BX(Data)", 15, 0,15);
   h_clctBx_data_tight_ =     fs->make<TH1D>("clctBx_data_tight", "CLCT tight shower BX(Data)", 15, 0,15);
@@ -135,6 +145,14 @@ void CSCShowerAnalyzer::beginJob(){
   h_alct_thres_data_v_emul=  fs->make<TH2D>("alct_thres_data_v_emul", "ALCT HMT thres data v emul", 3, 1 ,4, 3,1,4);
   h_clct_thres_data_v_emul=  fs->make<TH2D>("clct_thres_data_v_emul", "CLCT HMT thres data v emul", 3, 1 ,4, 3,1,4);
   h_lct_thres_data_v_emul =  fs->make<TH2D>("lct_thres_data_v_emul" , "LCT HMT thres data v emul" , 3, 1 ,4, 3,1,4);
+
+  h_alct_nom_Bx_v_station =  fs->make<TH2D>("alct_nom_Bx_v_station", "Data Anode Nominal Shower", 15, 0, 15, 18, 0, 18);
+  h_clct_nom_Bx_v_station =  fs->make<TH2D>("clct_nom_Bx_v_station", "Data Cathode Nominal Shower", 15, 0, 15, 18, 0, 18);
+  h_lct_nom_Bx_v_station  =  fs->make<TH2D>("lct_nom_Bx_v_station" , "Data LCT Nominal Shower", 15, 0, 15, 18, 0, 18);
+  h_alct_tight_Bx_v_station =  fs->make<TH2D>("alct_tight_Bx_v_station", "Data Anode Tight Shower", 15, 0, 15, 18, 0, 18);
+  h_clct_tight_Bx_v_station =  fs->make<TH2D>("clct_tight_Bx_v_station", "Data Cathode Tight Shower", 15, 0, 15, 18, 0, 18);
+  h_lct_tight_Bx_v_station  =  fs->make<TH2D>("lct_tight_Bx_v_station" , "Data LCT Tight Shower", 15, 0, 15, 18, 0, 18);
+
 
   lctShowerDataNomSummary_denom_ =
       fs->make<TH2D>("lct_cscshower_data_nom_summary_denom", "Data LCT Nominal Shower All", 36, 1, 37, 18, 0, 18);
@@ -205,6 +223,13 @@ void CSCShowerAnalyzer::beginJob(){
   h_clct_thres_data_v_emul->GetYaxis()->SetTitle("Emulator");
   h_lct_thres_data_v_emul ->GetYaxis()->SetTitle("Emulator");
 
+  h_alct_nom_Bx_v_station->GetXaxis()->SetTitle("Bx");
+  h_clct_nom_Bx_v_station->GetXaxis()->SetTitle("Bx");
+  h_lct_nom_Bx_v_station->GetXaxis()->SetTitle("Bx");
+  h_alct_tight_Bx_v_station->GetXaxis()->SetTitle("Bx");
+  h_clct_tight_Bx_v_station->GetXaxis()->SetTitle("Bx");
+  h_lct_tight_Bx_v_station->GetXaxis()->SetTitle("Bx");
+
   lctShowerDataNomSummary_denom_->GetXaxis()->SetTitle("Chamber");
   lctShowerDataNomSummary_num_->GetXaxis()->SetTitle("Chamber");
   alctShowerDataNomSummary_denom_->GetXaxis()->SetTitle("Chamber");
@@ -234,6 +259,13 @@ void CSCShowerAnalyzer::beginJob(){
   clctShowerEmulTightSummary_num_->GetXaxis()->SetTitle("Chamber");
 
   // plotting option
+  h_alct_nom_Bx_v_station->SetOption("colz");
+  h_clct_nom_Bx_v_station->SetOption("colz");
+  h_lct_nom_Bx_v_station->SetOption("colz");
+  h_alct_tight_Bx_v_station->SetOption("colz");
+  h_clct_tight_Bx_v_station->SetOption("colz");
+  h_lct_tight_Bx_v_station->SetOption("colz");
+
   lctShowerDataNomSummary_denom_->SetOption("colz");
   lctShowerDataNomSummary_num_->SetOption("colz");
   alctShowerDataNomSummary_denom_->SetOption("colz");
@@ -302,6 +334,13 @@ void CSCShowerAnalyzer::beginJob(){
 
   // y labels
   for (int ybin = 1; ybin <= 9; ++ybin) {
+    h_alct_nom_Bx_v_station->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
+    h_clct_nom_Bx_v_station->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
+    h_lct_nom_Bx_v_station->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
+    h_alct_tight_Bx_v_station->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
+    h_clct_tight_Bx_v_station->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
+    h_lct_tight_Bx_v_station->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
+
     lctShowerDataNomSummary_denom_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data()) ;
     lctShowerDataNomSummary_num_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data());
     alctShowerDataNomSummary_denom_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data());
@@ -315,6 +354,14 @@ void CSCShowerAnalyzer::beginJob(){
     alctShowerEmulNomSummary_num_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data());
     clctShowerEmulNomSummary_denom_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data());
     clctShowerEmulNomSummary_num_->GetYaxis()->SetBinLabel(ybin, (std::string("ME-") + suffix_label[ybin - 1]).data());
+
+
+    h_alct_nom_Bx_v_station->GetYaxis()->SetBinLabel(19-ybin, (std::string("ME+") + suffix_label[ybin - 1]).data()) ;
+    h_clct_nom_Bx_v_station->GetYaxis()->SetBinLabel(19-ybin, (std::string("ME+") + suffix_label[ybin - 1]).data()) ;
+    h_lct_nom_Bx_v_station->GetYaxis()->SetBinLabel(19-ybin, (std::string("ME+") + suffix_label[ybin - 1]).data()) ;
+    h_alct_tight_Bx_v_station->GetYaxis()->SetBinLabel(19-ybin, (std::string("ME+") + suffix_label[ybin - 1]).data()) ;
+    h_clct_tight_Bx_v_station->GetYaxis()->SetBinLabel(19-ybin, (std::string("ME+") + suffix_label[ybin - 1]).data()) ;
+    h_lct_tight_Bx_v_station->GetYaxis()->SetBinLabel(19-ybin, (std::string("ME+") + suffix_label[ybin - 1]).data()) ;
 
     lctShowerDataNomSummary_denom_->GetYaxis()->SetBinLabel(19 - ybin, (std::string("ME+") + suffix_label[ybin - 1]).data());
     lctShowerDataNomSummary_num_->GetYaxis()->SetBinLabel(19 - ybin, (std::string("ME+") + suffix_label[ybin - 1]).data());
@@ -481,12 +528,14 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
               if (dalct->isValid() and dalct->isNominalInTime() ) {
                 if (has_alct) counters_->Fill("ALCT nominal&ALCT",1);
                 if (has_lct) counters_->Fill("ALCT nominal&LCT",1);
+                h_alct_nom_Bx_v_station->Fill(dalct->getBX(),sr);
                 h_alctBx_data_nom_->Fill(dalct->getBX());
                 if (dalct->isTightInTime()) {
                   if (has_alct) counters_->Fill("ALCT tight&ALCT",1);
                   if (has_lct) counters_->Fill("ALCT tight&LCT",1);
                   fillhist(alctShowerDataTightSummary_denom_, chamber,sr);
                   h_alctBx_data_tight_->Fill(dalct->getBX());
+                  h_alct_tight_Bx_v_station->Fill(dalct->getBX(),sr);
                   has_dalct_tight=true;
                 }
                 has_dalct_nom=true;
@@ -635,11 +684,13 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                     std::cout<< " clct (isNominal,isTight)= ("<< dclct->isNominalInTime() <<","<<dclct->isTightInTime()<<")";
                     std::cout<< " bits=" <<(*dclct) <<std::endl;
                 h_clctBx_data_nom_->Fill(dclct->getBX());
+                h_clct_nom_Bx_v_station->Fill(dclct->getBX(),sr);
                 if (has_lct) counters_->Fill("CLCT nominal&LCT",1);
                 if (dclct->isTightInTime()) {
                   if (has_lct) counters_->Fill("CLCT tight&LCT",1);
                   fillhist(clctShowerDataTightSummary_denom_, chamber,sr);
                   h_clctBx_data_tight_->Fill(dclct->getBX());
+                  h_clct_tight_Bx_v_station->Fill(dclct->getBX(),sr);
                 }
                 fillhist(clctShowerDataNomSummary_denom_, chamber,sr);
                 // check for least one matching CLCT
@@ -719,9 +770,11 @@ void CSCShowerAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
                 if (dlct->isTightInTime()) {
                   if (has_lct) counters_->Fill("LCT tight&LCT",1);
                   fillhist(lctShowerDataTightSummary_denom_, chamber,sr);
+                  h_lct_tight_Bx_v_station->Fill(dlct->getBX(),sr);
                   has_dlct_tight = true;
                 }
                 has_dlct_nom=true;
+                h_lct_nom_Bx_v_station->Fill(dlct->getBX(),sr);
                 fillhist(lctShowerDataNomSummary_denom_, chamber,sr);
                 // check for least one matching LCT
                 for (auto elct = range_emulLCT.first; elct != range_emulLCT.second; elct++) {
