@@ -16,15 +16,15 @@ process.maxEvents = cms.untracked.PSet(
       input = cms.untracked.int32(options.maxEvents)
 )
 
-#if (options.inputFiles[0]).split(".")[-1]=="txt":
-#    inputfiles = []
-#    with open(options.inputFiles[0]) as f:
-#        inputfiles = [line.strip() for line in f]
-#    print(inputfiles)
-#else:
-#    inputfiles = options.inputFiles
+if (options.inputFiles[0]).split(".")[-1]=="txt":
+    inputfiles = []
+    with open(options.inputFiles[0]) as f:
+        inputfiles = [line.strip() for line in f]
+    print(inputfiles)
+else:
+    inputfiles = options.inputFiles
 
-inputfiles = options.inputFiles
+#inputfiles = options.inputFiles
 
 process.source = cms.Source(
       "PoolSource",
@@ -49,6 +49,7 @@ process.TFileService = cms.Service("TFileService",
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("Configuration/StandardSequences/GeometryRecoDB_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
+
 process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -56,8 +57,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
 process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
-process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
-process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
+#process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
+#process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
 process.unpacksequence = cms.Sequence(process.muonCSCDigis*process.muonDTDigis)
 
 
@@ -71,22 +72,25 @@ from L1Trigger.CSCTriggerPrimitives.CSCShowerAnalyzer_cfi import cscTriggerPrimi
 
 
 process.cscTriggerPrimitivesAnalyzer = cscTriggerPrimitivesAnalyzer
+process.cscTriggerPrimitivesAnalyzer.debug=cms.bool(False)
 
 process.simpleCSCshowerFilter = cms.EDFilter("SimpleCSCshowerFilter",
+    #muons = cms.InputTag("muons"),
     dataLCTShower = cms.InputTag("muonCSCDigis","MuonCSCShowerDigi"),
+    emulLCTShower = cms.InputTag("cscTriggerPrimitiveDigis"),
     ca4CSCrechitClusters = cms.InputTag("ca4CSCrechitClusters"),
     recHitLabel = cms.InputTag("csc2DRecHits"),
-    AsL1filter = cms.bool(False),
-    AsRecofilter = cms.bool(True) 
+    #AsL1filter = cms.bool(False),
+    #AsRecofilter = cms.bool(True), 
+    AsL1filter = cms.bool(True),
+    AsRecofilter = cms.bool(False), 
+    debug = cms.bool(False)
 )
 process.l1filter_step = cms.Path(process.simpleCSCshowerFilter)
 process.l1sequence = cms.Sequence(process.cscTriggerPrimitiveDigis)
 process.l1sequence += process.cscTriggerPrimitivesAnalyzer
+process.cscShowerAnalyzer = cms.Path(cscTriggerPrimitivesAnalyzer)
 
-
-#import EventFilter.DTRawToDigi.dtunpacker_cfi
-#from RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi import *
-#from RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi import *
 
 process.dummy1 = cms.ESSource("EmptyESSource",
                                   recordName = cms.string("CSCIndexerRecord"),
@@ -103,19 +107,18 @@ process.dummy2 = cms.ESSource("EmptyESSource",
 process.CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer", AlgoName = cms.string("CSCIndexerStartup") )
 process.CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer", AlgoName = cms.string("CSCChannelMapperStartup") )
 process.load('RecoLocalMuon.CSCRecHitD.cscRecHitD_cfi')
-process.load('RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi')
-process.load('RecoLocalMuon.Configuration.RecoLocalMuon_cff')
-process.load('RecoMuon.Configuration.RecoMuonPPonly_cff')
+#process.load('RecoLocalMuon.DTRecHit.dt1DRecHits_LinearDriftFromDB_cfi')
+#process.load('RecoLocalMuon.Configuration.RecoLocalMuon_cff')
+#process.load('RecoMuon.Configuration.RecoMuonPPonly_cff')
 process.reco = cms.Path(process.csc2DRecHits )
 #process.reco = cms.Path(process.muonlocalreco * process.standalonemuontracking)
 #process.reco = cms.Path( process.muonGlobalReco)
-
 
 import RecoMuon.MuonRechitClusterProducer.cscRechitClusterProducer_cfi as CSCcluster 
 
 process.ca4CSCrechitClusters= CSCcluster.cscRechitClusterProducer.clone(
     recHitLabel = "csc2DRecHits",
-    nRechitMin  = 20,
+    nRechitMin  = 50,
     rParam      = 0.4,
     nStationThres = 10, 
 ) 
@@ -128,11 +131,12 @@ outf = "output_reco.root"
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(outf), # choose your output file
     outputCommands = cms.untracked.vstring(
+              'drop *',
               #'keep *',
               #'keep *_gen*_*_*',
               'keep *ShowerDigi*_*cscTriggerPrimitive*_*_*',
               'keep *_csc2DRecHits_*_*',
-              #'keep *_standAloneMuons*_*_*',
+              #'keep *_muons*_*_*',
               'keep *_ca4*_*_*',
     ),
     SelectEvents = cms.untracked.PSet(
@@ -146,4 +150,8 @@ process.end = cms.EndPath(process.out)
 
 process.p = cms.Path(process.unpacksequence * process.l1sequence )
 
-process.schedule = cms.Schedule(process.p,  process.reco, process.producer,process.l1filter_step, process.end)
+process.schedule = cms.Schedule(process.p, 
+                                process.reco,
+                                process.producer,
+                                process.l1filter_step,
+                                process.end)
