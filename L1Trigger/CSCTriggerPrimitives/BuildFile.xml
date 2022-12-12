@@ -1,3 +1,4 @@
+<use name="PhysicsTools/UtilAlgos"/>
 <use name="CondFormats/CSCObjects"/>
 <use name="DataFormats/CSCDigi"/>
 <use name="DataFormats/GEMDigi"/>
