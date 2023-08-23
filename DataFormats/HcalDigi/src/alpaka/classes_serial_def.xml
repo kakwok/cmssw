@@ -1,0 +1,30 @@
+<lcgdict>
+  <class name="hcal::Phase1DigiHostCollection"/>
+  <read
+    sourceClass="hcal::Phase1DigiHostCollection"
+    targetClass="hcal::Phase1DigiHostCollection"
+    version="[1-]"
+    source="hcal::EcalDigiSoA layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    hcal::Phase1DigiHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<hcal::Phase1DigiHostCollection>" splitLevel="0"/>
+
+  <class name="hcal::Phase0DigiHostCollection"/>
+  <read
+    sourceClass="hcal::Phase0DigiHostCollection"
+    targetClass="hcal::Phase0DigiHostCollection"
+    version="[1-]"
+    source="hcal::EcalDigiSoA layout_;"
+    target="buffer_"
+    embed="false">
+  <![CDATA[
+    hcal::Phase0DigiHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<hcal::Phase0DigiHostCollection>" splitLevel="0"/>
+
+</lcgdict>
