@@ -32,9 +32,9 @@ from EventFilter.HcalRawToDigi.hcalDigisProducerPortable_cfi import hcalDigisPro
 hcalDigisGPU = _hcalDigisProducerPortable.clone(
 #from EventFilter.HcalRawToDigi.hcalDigisProducerGPU_cfi import hcalDigisProducerGPU as _hcalDigisProducerGPU
 #hcalDigisGPU = _hcalDigisProducerGPU.clone(
-    digisLabelF01HE = "",
-    digisLabelF5HB = "",
-    digisLabelF3HB = ""
+    digisLabelF01HE = "HE",
+    digisLabelF5HB  = "",
+    digisLabelF3HB  = "HB"
 )
 
 # run the HCAL local reconstruction (MAHI) on GPU

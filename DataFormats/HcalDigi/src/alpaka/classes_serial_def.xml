@@ -4,7 +4,7 @@
     sourceClass="hcal::Phase1DigiHostCollection"
     targetClass="hcal::Phase1DigiHostCollection"
     version="[1-]"
-    source="hcal::EcalDigiSoA layout_;"
+    source="hcal::HcalPhase1DigiSoA layout_;"
     target="buffer_"
     embed="false">
   <![CDATA[
@@ -18,7 +18,7 @@
     sourceClass="hcal::Phase0DigiHostCollection"
     targetClass="hcal::Phase0DigiHostCollection"
     version="[1-]"
-    source="hcal::EcalDigiSoA layout_;"
+    source="hcal::HcalPhase0DigiSoA layout_;"
     target="buffer_"
     embed="false">
   <![CDATA[
