@@ -6,7 +6,7 @@
 
 <!--<use name="eigen"/>-->
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<flags ALPAKA_BACKENDS="serial cuda"/>
+<flags ALPAKA_BACKENDS="cuda"/>
 <export>
   <lib name="1"/>
 </export>
