@@ -172,10 +172,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               auto hf01_vi = hf1_.view()[i_f1];
 
               hf01_vi.ids() = digi.detid().rawId();
-              for (int hw = 0; hw < QIE11DataFrame::HEADER_WORDS; hw++)
+              for (int hw = 0; hw < QIE11DataFrame::HEADER_WORDS + digi.samples(); hw++){
                 hf01_vi.data()[hw] = ((*qie11Digis)[i][hw]);
-              for (int sample = 0; sample < digi.samples(); sample++) {
-                hf01_vi.data()[sample] = (*qie11Digis)[i][QIE11DataFrame::HEADER_WORDS + sample];
               }
               i_f1++; 
             } else if (digi.flavor() == 3) {
@@ -185,10 +183,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               
               hf03_vi.ids() = digi.detid().rawId();
 
-              for (int hw = 0; hw < QIE11DataFrame::HEADER_WORDS; hw++)
+              for (int hw = 0; hw < QIE11DataFrame::HEADER_WORDS + digi.samples(); hw++){
                 hf03_vi.data()[hw] = ((*qie11Digis)[i][hw]);
-              for (int sample = 0; sample < digi.samples(); sample++) {
-                hf03_vi.data()[sample] = (*qie11Digis)[i][QIE11DataFrame::HEADER_WORDS + sample];
               }
               i_f3++;
             }
