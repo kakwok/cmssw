@@ -1,26 +1,23 @@
 #ifndef CondFormats_HcalObjects_HcalMahiConditionsSoA_h
 #define CondFormats_HcalObjects_HcalMahiConditionsSoA_h
 
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
+
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
 
+using  HcalPedestalArray   = std::array<float, 4>; // 4 capIds 
+
 GENERATE_SOA_LAYOUT(HcalMahiConditionsSoALayout,
                     SOA_COLUMN(uint32_t, param1),
                     SOA_COLUMN(uint32_t, param2),
-                    SOA_COLUMN(float, pedestals_value0),
-                    SOA_COLUMN(float, pedestals_value1),
-                    SOA_COLUMN(float, pedestals_value2),
-                    SOA_COLUMN(float, pedestals_value3),
-                    SOA_COLUMN(float, pedestals_width0),
-                    SOA_COLUMN(float, pedestals_width1),
-                    SOA_COLUMN(float, pedestals_width2),
-                    SOA_COLUMN(float, pedestals_width3),
-                    SOA_COLUMN(float, gains_value0),
-                    SOA_COLUMN(float, gains_value1),
-                    SOA_COLUMN(float, gains_value2),
-                    SOA_COLUMN(float, gains_value3),
+                    SOA_COLUMN(HcalPedestalArray, pedestals_value),
+                    SOA_COLUMN(HcalPedestalArray, pedestals_width),
+                    SOA_COLUMN(HcalPedestalArray, gains_value),
+                    SOA_COLUMN(HcalPedestalArray, convertedPedestals),
+                    SOA_COLUMN(HcalPedestalArray, convertedPedestalWidths),
                     SOA_COLUMN(float, lutCorrs_values),
                     SOA_COLUMN(float, respCorrs_values),
                     SOA_COLUMN(float, timeCorrs_values),
@@ -53,7 +50,34 @@ GENERATE_SOA_LAYOUT(HcalMahiConditionsSoALayout,
                     SOA_COLUMN(float, sipmPar_darkCurrent),
                     SOA_COLUMN(float, sipmPar_auxi2)
                     )
-
 using HcalMahiConditionsSoA = HcalMahiConditionsSoALayout<>;
+
+//using  HcalPSfunctorArray   = std::array<float, hcal::constants::maxPSshapeBin>; // 256
+//using  HcalPSfunctorBXarray = std::array<float, hcal::constants::nsPerBX>;       // 25
+//
+//GENERATE_SOA_LAYOUT(HcalRecoParamSoALayout,
+//                    SOA_COLUMN(uint32_t, param1),
+//                    SOA_COLUMN(uint32_t, param2),
+//                    SOA_COLUMN(uint32_t, ids)
+//                    )
+//GENERATE_SOA_LAYOUT(HcalPulseShapeSoALayout,
+//                    SOA_COLUMN(HcalPSfunctorArray, acc25nsVec),
+//                    SOA_COLUMN(HcalPSfunctorArray, diff25nsItvlVec),
+//                    SOA_COLUMN(HcalPSfunctorBXarray, accVarLenIdxMinusOneVec),
+//                    SOA_COLUMN(HcalPSfunctorBXarray, diffVarItvlIdxMinusOneVec),
+//                    SOA_COLUMN(HcalPSfunctorBXarray, accVarLenIdxZEROVec),
+//                    SOA_COLUMN(HcalPSfunctorBXarray, diffVarItvlIdxZEROVec)
+//                    )
+//
+//using HcalRecoParamSoA      = HcalRecoParamSoALayout<>;
+//using HcalPulseShapeSoA     = HcalPulseShapeSoALayout<>;
+//
+//struct HcalRecoParamsWithPulseShapes{
+//    HcalRecoParamSoA     const * recoParam;
+//    HcalPulseShapeSoA    const * shape;
+//
+//}
+//
+
 
 #endif
