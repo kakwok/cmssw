@@ -13,6 +13,7 @@
 #include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
+#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
 
 
@@ -28,5 +29,6 @@ class HcalMahiConditionsRcd :
                                                                      HcalGainWidthsRcd,
                                                                      HcalChannelQualityRcd,
                                                                      HcalQIETypesRcd,
+                                                                     HcalQIEDataRcd,
                                                                      HcalSiPMParametersRcd>> {};
 #endif
