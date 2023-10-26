@@ -8,7 +8,9 @@
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
 
+static constexpr uint32_t numValuesPerChannel = 16;
 using  HcalPedestalArray   = std::array<float, 4>; // 4 capIds 
+using  HcalQIECodersArray   = std::array<float, numValuesPerChannel>; // QIEData 
 
 GENERATE_SOA_LAYOUT(HcalMahiConditionsSoALayout,
                     SOA_COLUMN(uint32_t, param1),
@@ -43,6 +45,8 @@ GENERATE_SOA_LAYOUT(HcalMahiConditionsSoALayout,
                     SOA_COLUMN(float, gainWidths_value2),
                     SOA_COLUMN(float, gainWidths_value3),
                     SOA_COLUMN(uint32_t, channelQuality_status),
+                    SOA_COLUMN(HcalQIECodersArray, qieCoders_offsets),
+                    SOA_COLUMN(HcalQIECodersArray, qieCoders_slopes),
                     SOA_COLUMN(int, qieTypes_values),
                     SOA_COLUMN(int, sipmPar_type),
                     SOA_COLUMN(int, sipmPar_auxi1),
@@ -71,13 +75,13 @@ GENERATE_SOA_LAYOUT(HcalPulseShapeSoALayout,
 
 using HcalRecoParamSoA      = HcalRecoParamSoALayout<>;
 using HcalPulseShapeSoA     = HcalPulseShapeSoALayout<>;
-//
+
 //struct HcalRecoParamsWithPulseShapes{
-//    HcalRecoParamSoA     const * recoParam;
-//    HcalPulseShapeSoA    const * shape;
+//    HcalRecoParamSoA     * recoParam;
+//    HcalPulseShapeSoA    * shape;
 //
 //}
-//
+
 
 
 #endif
