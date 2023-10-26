@@ -127,7 +127,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (uint64_t i = 0; i < pedestals_barrel.size(); ++i) {
         auto vi = view[i];
 
-
         // convert pedestals
         auto const& qieCoder = qieData_barrel[i];
         auto const  qieType = qieTypes_barrel[i].getValue() > 1 ? 1 : 0;
@@ -160,7 +159,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vi.gains_value().data()[i * 4 + 1] = gains_barrel[i].getValue(1);
         vi.gains_value().data()[i * 4 + 2] = gains_barrel[i].getValue(2);
         vi.gains_value().data()[i * 4 + 3] = gains_barrel[i].getValue(3);
-       
+
+        vi.lutCorrs_values() = lutCorrs_barrel[i].getValue();
+        vi.respCorrs_values() = respCorrs_barrel[i].getValue();
+        vi.timeCorrs_values() = timeCorrs_barrel[i].getValue();
+
 
         vi.pedestalWidths_sigma00() = *(pedestalWidths_barrel[i].getValues());
         vi.pedestalWidths_sigma01() = *(pedestalWidths_barrel[i].getValues() + 1 );
