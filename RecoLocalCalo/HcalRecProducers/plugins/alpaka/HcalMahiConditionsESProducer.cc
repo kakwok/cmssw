@@ -135,30 +135,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vi.param1() = recoParams_barrel[i].param1();
         vi.param1() = recoParams_barrel[i].param2();
 
-        vi.pedestals_value().data()[i * 4 ]    = pedestals_barrel[i].getValue(0);
-        vi.pedestals_value().data()[i * 4 + 1] = pedestals_barrel[i].getValue(1);
-        vi.pedestals_value().data()[i * 4 + 2] = pedestals_barrel[i].getValue(2);
-        vi.pedestals_value().data()[i * 4 + 3] = pedestals_barrel[i].getValue(3);
+        vi.pedestals_value()[0] = pedestals_barrel[i].getValue(0);
+        vi.pedestals_value()[1] = pedestals_barrel[i].getValue(1);
+        vi.pedestals_value()[2] = pedestals_barrel[i].getValue(2);
+        vi.pedestals_value()[3] = pedestals_barrel[i].getValue(3);
 
-        vi.pedestals_width().data()[i * 4 ]    = pedestals_barrel[i].getWidth(0);
-        vi.pedestals_width().data()[i * 4 + 1] = pedestals_barrel[i].getWidth(1);
-        vi.pedestals_width().data()[i * 4 + 2] = pedestals_barrel[i].getWidth(2);
-        vi.pedestals_width().data()[i * 4 + 3] = pedestals_barrel[i].getWidth(3);
+        vi.pedestals_width()[0] = pedestals_barrel[i].getWidth(0);
+        vi.pedestals_width()[1] = pedestals_barrel[i].getWidth(1);
+        vi.pedestals_width()[2] = pedestals_barrel[i].getWidth(2);
+        vi.pedestals_width()[3] = pedestals_barrel[i].getWidth(3);
 
-        vi.convertedPedestals().data()[i * 4]    = unitIsADC ? convertPed(pedestals_barrel[i].getValue(0), 0, qieCoder, qieShape) : pedestals_barrel[i].getValue(0); 
-        vi.convertedPedestals().data()[i * 4 + 1] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(1), 1, qieCoder, qieShape) : pedestals_barrel[i].getValue(1); 
-        vi.convertedPedestals().data()[i * 4 + 2] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(2), 2, qieCoder, qieShape) : pedestals_barrel[i].getValue(2); 
-        vi.convertedPedestals().data()[i * 4 + 3] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(3), 3, qieCoder, qieShape) : pedestals_barrel[i].getValue(3);
+        vi.convertedPedestals()[0] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(0), 0, qieCoder, qieShape) : pedestals_barrel[i].getValue(0); 
+        vi.convertedPedestals()[1] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(1), 1, qieCoder, qieShape) : pedestals_barrel[i].getValue(1); 
+        vi.convertedPedestals()[2] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(2), 2, qieCoder, qieShape) : pedestals_barrel[i].getValue(2); 
+        vi.convertedPedestals()[3] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(3), 3, qieCoder, qieShape) : pedestals_barrel[i].getValue(3);
 
-        vi.convertedPedestalWidths().data()[i * 4] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(0), pedestalWidths_barrel[i].getWidth(0), 0, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(0); 
-        vi.convertedPedestalWidths().data()[i * 4 + 1] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(1), pedestalWidths_barrel[i].getWidth(1), 1, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(1); 
-        vi.convertedPedestalWidths().data()[i * 4 + 2] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(2), pedestalWidths_barrel[i].getWidth(2), 2, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(2); 
-        vi.convertedPedestalWidths().data()[i * 4 + 3] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(3), pedestalWidths_barrel[i].getWidth(3), 3, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(3); 
+        vi.convertedPedestalWidths()[0] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(0), pedestalWidths_barrel[i].getWidth(0), 0, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(0); 
+        vi.convertedPedestalWidths()[1] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(1), pedestalWidths_barrel[i].getWidth(1), 1, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(1); 
+        vi.convertedPedestalWidths()[2] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(2), pedestalWidths_barrel[i].getWidth(2), 2, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(2); 
+        vi.convertedPedestalWidths()[3] = unitIsADC ? convertPedWidths(pedestals_barrel[i].getValue(3), pedestalWidths_barrel[i].getWidth(3), 3, qieCoder, qieShape)  : pedestalWidths_barrel[i].getWidth(3); 
 
-        vi.gains_value().data()[i * 4 ]    = gains_barrel[i].getValue(0);
-        vi.gains_value().data()[i * 4 + 1] = gains_barrel[i].getValue(1);
-        vi.gains_value().data()[i * 4 + 2] = gains_barrel[i].getValue(2);
-        vi.gains_value().data()[i * 4 + 3] = gains_barrel[i].getValue(3);
+        vi.gains_value()[0] = gains_barrel[i].getValue(0);
+        vi.gains_value()[1] = gains_barrel[i].getValue(1);
+        vi.gains_value()[2] = gains_barrel[i].getValue(2);
+        vi.gains_value()[3] = gains_barrel[i].getValue(3);
 
         vi.lutCorrs_values() = lutCorrs_barrel[i].getValue();
         vi.respCorrs_values() = respCorrs_barrel[i].getValue();
@@ -190,6 +190,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vi.channelQuality_status() = channelQuality_barrel[i].getValue();
         vi.qieTypes_values() = qieTypes_barrel[i].getValue();
 
+        for (uint32_t k = 0; k < 4; k++)
+          for (uint32_t l = 0; l < 4; l++) {
+             auto const linear = k * 4 + l;
+             vi.qieCoders_offsets()[linear] = qieData_barrel[i].offset(k, l);
+             vi.qieCoders_slopes()[linear] = qieData_barrel[i].slope(k, l);
+        }
+
         vi.sipmPar_type() = sipmParameters_barrel[i].getType(); 
         vi.sipmPar_auxi1() = sipmParameters_barrel[i].getauxi1(); 
         vi.sipmPar_fcByPE() = sipmParameters_barrel[i].getFCByPE();
@@ -220,35 +227,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto const& qieShape = qieData.getShape(qieType);
 
           auto const off = offset + i;
-          auto vi = view[i];
+          auto vi = view[off];
           vi.param1() = recoParams_endcaps[i].param1();
           vi.param1() = recoParams_endcaps[i].param2();
 
-          vi.pedestals_value().data()[off * 4 ]    = pedestals_endcaps[i].getValue(0);
-          vi.pedestals_value().data()[off * 4 + 1] = pedestals_endcaps[i].getValue(1);
-          vi.pedestals_value().data()[off * 4 + 2] = pedestals_endcaps[i].getValue(2);
-          vi.pedestals_value().data()[off * 4 + 3] = pedestals_endcaps[i].getValue(3);
+          vi.pedestals_value()[0] = pedestals_endcaps[i].getValue(0);
+          vi.pedestals_value()[1] = pedestals_endcaps[i].getValue(1);
+          vi.pedestals_value()[2] = pedestals_endcaps[i].getValue(2);
+          vi.pedestals_value()[3] = pedestals_endcaps[i].getValue(3);
 
-          vi.pedestals_width().data()[off * 4 ]    = pedestals_endcaps[i].getWidth(0);
-          vi.pedestals_width().data()[off * 4 + 1] = pedestals_endcaps[i].getWidth(1);
-          vi.pedestals_width().data()[off * 4 + 2] = pedestals_endcaps[i].getWidth(2);
-          vi.pedestals_width().data()[off * 4 + 3] = pedestals_endcaps[i].getWidth(3);
+          vi.pedestals_width()[0] = pedestals_endcaps[i].getWidth(0);
+          vi.pedestals_width()[1] = pedestals_endcaps[i].getWidth(1);
+          vi.pedestals_width()[2] = pedestals_endcaps[i].getWidth(2);
+          vi.pedestals_width()[3] = pedestals_endcaps[i].getWidth(3);
 
-          vi.convertedPedestals().data()[off * 4]    = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(0), 0, qieCoder, qieShape) : pedestals_endcaps[i].getValue(0); 
-          vi.convertedPedestals().data()[off * 4 + 1] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(1), 1, qieCoder, qieShape) : pedestals_endcaps[i].getValue(1); 
-          vi.convertedPedestals().data()[off * 4 + 2] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(2), 2, qieCoder, qieShape) : pedestals_endcaps[i].getValue(2); 
-          vi.convertedPedestals().data()[off * 4 + 3] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(3), 3, qieCoder, qieShape) : pedestals_endcaps[i].getValue(3);
+          vi.convertedPedestals()[0] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(0), 0, qieCoder, qieShape) : pedestals_endcaps[i].getValue(0); 
+          vi.convertedPedestals()[1] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(1), 1, qieCoder, qieShape) : pedestals_endcaps[i].getValue(1); 
+          vi.convertedPedestals()[2] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(2), 2, qieCoder, qieShape) : pedestals_endcaps[i].getValue(2); 
+          vi.convertedPedestals()[3] = unitIsADC ? convertPed(pedestals_endcaps[i].getValue(3), 3, qieCoder, qieShape) : pedestals_endcaps[i].getValue(3);
 
-          vi.convertedPedestalWidths().data()[off * 4] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(0), pedestalWidths_endcaps[i].getWidth(0), 0, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(0); 
-          vi.convertedPedestalWidths().data()[off * 4 + 1] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(1), pedestalWidths_endcaps[i].getWidth(1), 1, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(1); 
-          vi.convertedPedestalWidths().data()[off * 4 + 2] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(2), pedestalWidths_endcaps[i].getWidth(2), 2, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(2); 
-          vi.convertedPedestalWidths().data()[off * 4 + 3] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(3), pedestalWidths_endcaps[i].getWidth(3), 3, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(3); 
+          vi.convertedPedestalWidths()[0] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(0), pedestalWidths_endcaps[i].getWidth(0), 0, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(0); 
+          vi.convertedPedestalWidths()[1] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(1), pedestalWidths_endcaps[i].getWidth(1), 1, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(1); 
+          vi.convertedPedestalWidths()[2] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(2), pedestalWidths_endcaps[i].getWidth(2), 2, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(2); 
+          vi.convertedPedestalWidths()[3] = unitIsADC ? convertPedWidths(pedestals_endcaps[i].getValue(3), pedestalWidths_endcaps[i].getWidth(3), 3, qieCoder, qieShape)  : pedestalWidths_endcaps[i].getWidth(3); 
 
-
-          vi.gains_value().data()[off * 4 ]    = gains_endcaps[i].getValue(0);
-          vi.gains_value().data()[off * 4 + 1] = gains_endcaps[i].getValue(1);
-          vi.gains_value().data()[off * 4 + 2] = gains_endcaps[i].getValue(2);
-          vi.gains_value().data()[off * 4 + 3] = gains_endcaps[i].getValue(3);
+          vi.gains_value()[0] = gains_endcaps[i].getValue(0);
+          vi.gains_value()[1] = gains_endcaps[i].getValue(1);
+          vi.gains_value()[2] = gains_endcaps[i].getValue(2);
+          vi.gains_value()[3] = gains_endcaps[i].getValue(3);
 
           vi.lutCorrs_values() = lutCorrs_endcaps[i].getValue();
           vi.respCorrs_values() = respCorrs_endcaps[i].getValue();
@@ -278,6 +284,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           vi.channelQuality_status() = channelQuality_endcaps[i].getValue();
           vi.qieTypes_values() = qieTypes_endcaps[i].getValue();
+
+          for (uint32_t k = 0; k < 4; k++)
+            for (uint32_t l = 0; l < 4; l++) {
+              auto const linear = k * 4u + l;
+              vi.qieCoders_offsets()[linear] = qieData_endcaps[i].offset(k, l);
+              vi.qieCoders_slopes()[linear]  = qieData_endcaps[i].slope(k, l);
+          }
 
           vi.sipmPar_type() = sipmParameters_endcaps[i].getType(); 
           vi.sipmPar_auxi1() = sipmParameters_endcaps[i].getauxi1(); 
