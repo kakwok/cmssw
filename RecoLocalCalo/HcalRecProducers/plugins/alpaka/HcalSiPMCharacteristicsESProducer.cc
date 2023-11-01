@@ -1,0 +1,66 @@
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsPortable.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsSoA.h"
+#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
+
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+
+
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  class HcalSiPMCharacteristicsESProducer : public ESProducer {
+  public:
+    HcalSiPMCharacteristicsESProducer(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
+      auto cc = setWhatProduced(this);
+      sipmCharacteristicsToken_ = cc.consumes();
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addWithDefaultLabel(desc);
+    }
+
+    std::unique_ptr<HcalSiPMCharacteristicsPortableHost> produce(HcalSiPMCharacteristicsRcd const& iRecord) {
+
+      auto const& sipmCharacteristics = iRecord.get(sipmCharacteristicsToken_);
+
+      size_t const totalItems = sipmCharacteristics.getTypes();
+
+      auto product = std::make_unique<HcalSiPMCharacteristicsPortableHost>(totalItems,cms::alpakatools::host());
+
+      auto view = product->view();
+
+      for (uint32_t i = 0; i < sipmCharacteristics.getTypes(); i++) {
+
+        auto vi = view[i];
+   
+        auto const type      = sipmCharacteristics.getType(i);
+        auto const pixels    = sipmCharacteristics.getPixels(type);
+        auto const parLin1   = sipmCharacteristics.getNonLinearities(type)[0];
+        auto const parLin2   = sipmCharacteristics.getNonLinearities(type)[1];
+        auto const parLin3   = sipmCharacteristics.getNonLinearities(type)[2];
+        auto const crossTalk = sipmCharacteristics.getCrossTalk(i);
+        auto const auxi1     = sipmCharacteristics.getAuxi1(i);
+        auto const auxi2     = sipmCharacteristics.getAuxi2(i);
+    
+        HcalSiPMCharacteristics::PrecisionItem item(type, pixels, parLin1, parLin2, parLin3, crossTalk, auxi1, auxi2); 
+        vi.precisionItem() = item;
+
+      }
+      return product;
+    }
+
+  private:
+    edm::ESGetToken<HcalSiPMCharacteristics , HcalSiPMCharacteristicsRcd > sipmCharacteristicsToken_;
+
+  };
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(HcalSiPMCharacteristicsESProducer);
