@@ -40,18 +40,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (uint32_t i = 0; i < sipmCharacteristics.getTypes(); i++) {
 
         auto vi = view[i];
-   
         auto const type      = sipmCharacteristics.getType(i);
-        auto const pixels    = sipmCharacteristics.getPixels(type);
-        auto const parLin1   = sipmCharacteristics.getNonLinearities(type)[0];
-        auto const parLin2   = sipmCharacteristics.getNonLinearities(type)[1];
-        auto const parLin3   = sipmCharacteristics.getNonLinearities(type)[2];
-        auto const crossTalk = sipmCharacteristics.getCrossTalk(i);
-        auto const auxi1     = sipmCharacteristics.getAuxi1(i);
-        auto const auxi2     = sipmCharacteristics.getAuxi2(i);
     
-        HcalSiPMCharacteristics::PrecisionItem item(type, pixels, parLin1, parLin2, parLin3, crossTalk, auxi1, auxi2); 
-        vi.precisionItem() = item;
+        vi.precisionItem() = HcalSiPMCharacteristics::PrecisionItem(type, 
+                                                    sipmCharacteristics.getPixels(type),
+                                                    sipmCharacteristics.getNonLinearities(type)[0], 
+                                                    sipmCharacteristics.getNonLinearities(type)[1], 
+                                                    sipmCharacteristics.getNonLinearities(type)[2], 
+                                                    sipmCharacteristics.getCrossTalk(i),  
+                                                    sipmCharacteristics.getAuxi1(i), 
+                                                    sipmCharacteristics.getAuxi2(i)); 
 
       }
       return product;
