@@ -7,6 +7,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFunctor.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalConstants.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
@@ -58,6 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
 
+      // Fill products
       auto product = std::make_unique<HcalRecoParamWithPulseShapeHost>(totalChannels,idCache.size(),cms::alpakatools::host());
       auto recoView       = product->recoParamView();
       auto pulseShapeView = product->pulseShapeView();
@@ -67,6 +69,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vi.param2()  = barrelValues[i].param2();
         vi.ids()     = idCache[barrelValues[i].pulseShapeID()]; //idx of the pulseShape of channel i
       }
+      // fill in endcap
+      auto const offset = barrelValues.size();
+      for (uint64_t i = 0; i < endcapValues.size(); ++i) {
+        auto vi = recoView[i+offset];
+        vi.param1()  = endcapValues[i].param1();
+        vi.param2()  = endcapValues[i].param2();
+        vi.ids()     = idCache[endcapValues[i].pulseShapeID()]; //idx of the pulseShape of channel i
+      }
+
       //fill pulseShape views
       for (auto& it: idCache) {
           auto const pulseShapeId = it.first;
@@ -85,6 +96,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             pulseShapeView[arrId].diffVarItvlIdxZEROVec()[i]     = functor.diffVarItvlIdxZEROVec()[i];
           }
       }
+
+
  
 
       return product;
