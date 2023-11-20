@@ -41,11 +41,16 @@ public:
     typename PulseShapeCollection::View pulseShapeView_;
   };
 
-  HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize) : recoParam_(recoSize), pulseShape_(pulseSize) {}
+  HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TDev const& dev) : recoParam_(recoSize, dev), pulseShape_(pulseSize, dev) {}
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TQueue const& queue) : recoParam_(recoSize, queue), pulseShape_(pulseSize, queue) {}
   HcalRecoParamWithPulseShapeT(RecoParamCollection reco, PulseShapeCollection pulse) : recoParam_(std::move(reco)), pulseShape_(std::move(pulse)) {}
 
   const RecoParamCollection& recoParam() const { return recoParam_; }
   const PulseShapeCollection& pulseShape() const { return pulseShape_; }
+  
+  typename RecoParamCollection::View recoParamView() { return recoParam_.view(); }
+  typename PulseShapeCollection::View pulseShapeView() { return pulseShape_.view(); }
 
 private:
   RecoParamCollection recoParam_;

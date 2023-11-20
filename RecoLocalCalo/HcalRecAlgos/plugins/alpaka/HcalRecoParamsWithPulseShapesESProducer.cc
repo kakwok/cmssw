@@ -39,17 +39,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       //Get unique ids
       HcalPulseShapes pulseShapes;
-      std::unordered_map<unsigned int, uint32_t> idCache; //<pulseShapeId,arrIdx>
-      uint32_t unique_ids = 0;
+      std::unordered_map<unsigned int, uint32_t> idCache; //<pulseShapeId,pulseShapeIdx>
 
       auto const& barrelValues = containers[0].second;
       for (uint64_t i = 0; i < barrelValues.size(); ++i) {
           auto const pulseShapeId = barrelValues[i].pulseShapeID();
           if (pulseShapeId == 0)   continue;
           if (auto const iter = idCache.find(pulseShapeId); iter == idCache.end()) {
-            unique_ids++;
-            // new guy
-            idCache[pulseShapeId] = unique_ids;
+            idCache[pulseShapeId] = idCache.size();
           }
       }
       auto const& endcapValues = containers[1].second;
@@ -57,31 +54,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const pulseShapeId = endcapValues[i].pulseShapeID();
         if (auto const iter = idCache.find(pulseShapeId); iter == idCache.end()) {
           if (pulseShapeId == 0)   continue;
-            unique_ids++;
-            idCache[pulseShapeId] = unique_ids;
+            idCache[pulseShapeId] = idCache.size();
         }
       }
 
-      auto product = std::make_unique<HcalRecoParamWithPulseShapeHost>(totalChannels,unique_ids);
-      auto recoView       = product->recoParam().view();
-      auto pulseShapeView = product->pulseShape().view();
+      auto product = std::make_unique<HcalRecoParamWithPulseShapeHost>(totalChannels,idCache.size(),cms::alpakatools::host());
+      auto recoView       = product->recoParamView();
+      auto pulseShapeView = product->pulseShapeView();
       for (uint64_t i = 0; i < barrelValues.size(); ++i) {
-        recoView[i].param1()  = barrelValues[i].param1;
-        recoView[i].param2()  = barrelValues[i].param2;
-        recoView[i].ids()     = barrelValues[i].pulseShapeID();
+        auto vi = recoView[i];
+        vi.param1()  = barrelValues[i].param1();
+        vi.param2()  = barrelValues[i].param2();
+        vi.ids()     = idCache[barrelValues[i].pulseShapeID()]; //idx of the pulseShape of channel i
       }
       //fill pulseShape views
       for (auto& it: idCache) {
           auto const pulseShapeId = it.first;
-          auto const arrId = it.second;
+          auto const arrId        = it.second;
           auto const& pulseShape = pulseShapes.getShape(pulseShapeId);                                    
           FitterFuncs::PulseShapeFunctor functor{pulseShape, false, false, false, 1, 0, 0, hcal::constants::maxSamples};  
 
           for (int i = 0; i < hcal::constants::maxPSshapeBin; i++) {
-             acc25nsVec_[offset256 * numShapes + i] = functor.acc25nsVec()[i];
-             pulseShapeView[arrId].acc25nsVec[i]  = functor.acc25nsVec()[i]
-             pulseShapeView[arrId].diff25nsItvlVec[i]  = functor.diff25nsItvlVec()[i]
-           }
+             pulseShapeView[arrId].acc25nsVec()[i]  = functor.acc25nsVec()[i];
+             pulseShapeView[arrId].diff25nsItvlVec()[i]  = functor.diff25nsItvlVec()[i];
+          }
+          for (int i = 0; i < hcal::constants::nsPerBX; i++) {
+            pulseShapeView[arrId].accVarLenIdxMinusOneVec()[i]   = functor.accVarLenIdxMinusOneVec()[i];
+            pulseShapeView[arrId].diffVarItvlIdxMinusOneVec()[i] = functor.diffVarItvlIdxMinusOneVec()[i];
+            pulseShapeView[arrId].accVarLenIdxZEROVec()[i]       = functor.accVarLenIdxZEROVec()[i];
+            pulseShapeView[arrId].diffVarItvlIdxZEROVec()[i]     = functor.diffVarItvlIdxZEROVec()[i];
+          }
       }
  
 
