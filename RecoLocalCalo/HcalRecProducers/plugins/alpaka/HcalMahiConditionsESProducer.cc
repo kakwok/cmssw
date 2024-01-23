@@ -226,8 +226,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           auto const  qieType = qieTypes_endcaps[i].getValue() > 1 ? 1 : 0;
           auto const& qieShape = qieData.getShape(qieType);
 
-          auto const off = offset + i;
-          auto vi = view[off];
+          auto vi = view[offset+i];
           vi.param1() = recoParams_endcaps[i].param1();
           vi.param1() = recoParams_endcaps[i].param2();
 

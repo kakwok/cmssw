@@ -58,6 +58,9 @@ private:
 };
 
 using HcalRecoParamWithPulseShapeHost = HcalRecoParamWithPulseShapeT<alpaka::DevCpu>;
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  using HcalRecoParamWithPulseShapeDevice = HcalRecoParamWithPulseShapeT<Device>;
+}
 
 
 #endif

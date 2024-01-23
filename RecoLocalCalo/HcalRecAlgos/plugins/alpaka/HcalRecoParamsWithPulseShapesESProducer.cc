@@ -98,8 +98,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
 
- 
-
       return product;
     }
 

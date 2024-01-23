@@ -19,6 +19,7 @@
 
 //#include "SimpleAlgoGPU.h"
 //#include "DeclsForKernels.h"
+#include "HBHERecHitProducerPortable.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE{
 
@@ -42,81 +43,59 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
     
       using OProductType = hcal::RecHitDeviceCollection;
       edm::EDPutTokenT<OProductType> rechitsM0Token_;
-    
-      //## Needs some FitterFuncs::PulseShapeFunctor
-      //const edm::ESGetToken<HcalRecoParamsWithPulseShapesGPU, HcalRecoParamsRcd> recoParamsToken_;
-      //const edm::ESGetToken<HcalMahiPulseOffsetsGPU, JobConfigurationGPURecord> pulseOffsetsToken_;
-      //
-      //  Converted sutff???
-      //const edm::ESGetToken<HcalConvertedPedestalWidthsGPU, HcalConvertedPedestalWidthsRcd> pedestalWidthsToken_;
-      //const edm::ESGetToken<HcalConvertedEffectivePedestalWidthsGPU, HcalConvertedPedestalWidthsRcd>
-      //    effectivePedestalWidthsToken_;
-      //const edm::ESGetToken<HcalConvertedPedestalsGPU, HcalConvertedPedestalsRcd> pedestalsToken_;
-      //edm::ESGetToken<HcalConvertedEffectivePedestalsGPU, HcalConvertedPedestalsRcd> effectivePedestalsToken_;
-      //
-      //  Not implemented yet
-      //const edm::ESGetToken<HcalQIECodersGPU, HcalQIEDataRcd> qieCodersToken_;
-      //const edm::ESGetToken<HcalSiPMCharacteristicsGPU, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
+   
+      const device::ESGetToken<HcalMahiConditionsPortableDevice, HcalMahiConditionsRcd> mahiConditionsToken_;
+      const device::ESGetToken<HcalSiPMCharacteristicsPortableDevice, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
+ 
+      const device::ESGetToken<HcalRecoParamWithPulseShapeDevice, HcalRecoParamsRcd> recoParamsToken_;
       //
       const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
       const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> recConstantsToken_;
       //
     
-      //hcal::reconstruction::ConfigParameters configParameters_;
+      hcal::reconstruction::ConfigParameters configParameters_;
       //hcal::reconstruction::OutputDataGPU outputGPU_;
     };
     
-    HBHERecHitProducerPortable::HBHERecHitProducerPortable(edm::ParameterSet const& ps){}
-    //    : digisTokenF01HE_{consumes<IProductTypef01>(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
-    //      digisTokenF5HB_{consumes<IProductTypef5>(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
-    //      digisTokenF3HB_{consumes<IProductTypef3>(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
-    //      rechitsM0Token_{produces<OProductType>(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
-    //      recoParamsToken_{esConsumes()},
-    //      gainWidthsToken_{esConsumes()},
-    //      gainsToken_{esConsumes()},
-    //      lutCorrsToken_{esConsumes()},
-    //      pedestalWidthsToken_{esConsumes()},
-    //      effectivePedestalWidthsToken_{esConsumes()},
-    //      pedestalsToken_{esConsumes()},
-    //      qieCodersToken_{esConsumes()},
-    //      respCorrsToken_{esConsumes()},
-    //      timeCorrsToken_{esConsumes()},
-    //      qieTypesToken_{esConsumes()},
-    //      topologyToken_{esConsumes()},
-    //      recConstantsToken_{esConsumes()},
-    //      sipmParametersToken_{esConsumes()},
-    //      sipmCharacteristicsToken_{esConsumes()},
-    //      chQualProductToken_{esConsumes()},
-    //      pulseOffsetsToken_{esConsumes()} {
-    //  configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
-    //  configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
-    //  configParameters_.sipmQTSShift = ps.getParameter<int>("sipmQTSShift");
-    //  configParameters_.sipmQNTStoSum = ps.getParameter<int>("sipmQNTStoSum");
-    //  configParameters_.firstSampleShift = ps.getParameter<int>("firstSampleShift");
-    //  configParameters_.useEffectivePedestals = ps.getParameter<bool>("useEffectivePedestals");
-    //  if (configParameters_.useEffectivePedestals) {
-    //    effectivePedestalsToken_ = esConsumes();
-    //  }
-    //
-    //  configParameters_.meanTime = ps.getParameter<double>("meanTime");
-    //  configParameters_.timeSigmaSiPM = ps.getParameter<double>("timeSigmaSiPM");
-    //  configParameters_.timeSigmaHPD = ps.getParameter<double>("timeSigmaHPD");
-    //  configParameters_.ts4Thresh = ps.getParameter<double>("ts4Thresh");
-    //
-    //  configParameters_.applyTimeSlew = ps.getParameter<bool>("applyTimeSlew");
-    //  auto const tzeroValues = ps.getParameter<std::vector<double>>("tzeroTimeSlewParameters");
-    //  auto const slopeValues = ps.getParameter<std::vector<double>>("slopeTimeSlewParameters");
-    //  auto const tmaxValues = ps.getParameter<std::vector<double>>("tmaxTimeSlewParameters");
-    //
-    //  configParameters_.tzeroTimeSlew = tzeroValues[HcalTimeSlew::Medium];
-    //  configParameters_.slopeTimeSlew = slopeValues[HcalTimeSlew::Medium];
-    //  configParameters_.tmaxTimeSlew = tmaxValues[HcalTimeSlew::Medium];
-    //
-    //  auto threadsMinimize = ps.getParameter<std::vector<uint32_t>>("kernelMinimizeThreads");
-    //  configParameters_.kernelMinimizeThreads[0] = threadsMinimize[0];
-    //  configParameters_.kernelMinimizeThreads[1] = threadsMinimize[1];
-    //  configParameters_.kernelMinimizeThreads[2] = threadsMinimize[2];
-    //}
+    HBHERecHitProducerPortable::HBHERecHitProducerPortable(edm::ParameterSet const& ps)
+        : digisTokenF01HE_{consumes<IProductTypef01>(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
+          digisTokenF5HB_{consumes<IProductTypef5>(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
+          digisTokenF3HB_{consumes<IProductTypef3>(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
+          rechitsM0Token_{produces<OProductType>(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
+          mahiConditionsToken_{esConsumes()},
+          sipmCharacteristicsToken_{esConsumes()},
+          recoParamsToken_{esConsumes()},
+          topologyToken_{esConsumes()},
+          recConstantsToken_{esConsumes()}{
+      configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
+      configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
+      configParameters_.sipmQTSShift = ps.getParameter<int>("sipmQTSShift");
+      configParameters_.sipmQNTStoSum = ps.getParameter<int>("sipmQNTStoSum");
+      configParameters_.firstSampleShift = ps.getParameter<int>("firstSampleShift");
+      configParameters_.useEffectivePedestals = ps.getParameter<bool>("useEffectivePedestals");
+      //if (configParameters_.useEffectivePedestals) {
+      //  effectivePedestalsToken_ = esConsumes();
+      //}
+    
+      configParameters_.meanTime = ps.getParameter<double>("meanTime");
+      configParameters_.timeSigmaSiPM = ps.getParameter<double>("timeSigmaSiPM");
+      configParameters_.timeSigmaHPD = ps.getParameter<double>("timeSigmaHPD");
+      configParameters_.ts4Thresh = ps.getParameter<double>("ts4Thresh");
+    
+      configParameters_.applyTimeSlew = ps.getParameter<bool>("applyTimeSlew");
+      auto const tzeroValues = ps.getParameter<std::vector<double>>("tzeroTimeSlewParameters");
+      auto const slopeValues = ps.getParameter<std::vector<double>>("slopeTimeSlewParameters");
+      auto const tmaxValues = ps.getParameter<std::vector<double>>("tmaxTimeSlewParameters");
+    
+      configParameters_.tzeroTimeSlew = tzeroValues[HcalTimeSlew::Medium];
+      configParameters_.slopeTimeSlew = slopeValues[HcalTimeSlew::Medium];
+      configParameters_.tmaxTimeSlew = tmaxValues[HcalTimeSlew::Medium];
+    
+      auto threadsMinimize = ps.getParameter<std::vector<uint32_t>>("kernelMinimizeThreads");
+      configParameters_.kernelMinimizeThreads[0] = threadsMinimize[0];
+      configParameters_.kernelMinimizeThreads[1] = threadsMinimize[1];
+      configParameters_.kernelMinimizeThreads[2] = threadsMinimize[2];
+    }
     
     HBHERecHitProducerPortable::~HBHERecHitProducerPortable() {}
     
@@ -148,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
     }
     
     void HBHERecHitProducerPortable::produce(device::Event& event, device::EventSetup const& setup) {
-      //event.emplace(event, rechitsM0Token_, std::move(outputGPU_.recHits));
+      event.emplace(event, rechitsM0Token_, std::move(outputGPU_.recHits));
     }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
