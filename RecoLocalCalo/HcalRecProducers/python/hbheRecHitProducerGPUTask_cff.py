@@ -38,8 +38,8 @@ hcalDigisGPU = _hcalDigisProducerPortable.clone(
 )
 
 # run the HCAL local reconstruction (MAHI) on GPU
-from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerGPU_cfi import hbheRecHitProducerGPU as _hbheRecHitProducerGPU
-#from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerPortableGPU_cfi import hbheRecHitProducerPortableGPU as _hbheRecHitProducerGPU
+#from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerGPU_cfi import hbheRecHitProducerGPU as _hbheRecHitProducerGPU
+from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerPortable_cfi import hbheRecHitProducerPortable as _hbheRecHitProducerGPU
 hbheRecHitProducerGPU = _hbheRecHitProducerGPU.clone(
     digisLabelF01HE = "hcalDigisGPU",
     digisLabelF5HB = "hcalDigisGPU",
