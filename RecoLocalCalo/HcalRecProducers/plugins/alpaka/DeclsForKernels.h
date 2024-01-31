@@ -1,5 +1,5 @@
-#ifndef RecoLocalCalo_HcalRecProducers_plugins_DeclsForKernels_h
-#define RecoLocalCalo_HcalRecProducers_plugins_DeclsForKernels_h
+#ifndef RecoLocalCalo_HcalRecProducers_plugins_alpaka_DeclsForKernels_h
+#define RecoLocalCalo_HcalRecProducers_plugins_alpaka_DeclsForKernels_h
 
 #include <functional>
 #include <optional>
@@ -9,37 +9,37 @@
 #include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-#include "CondFormats/DataRecord/interface/HcalCombinedRecordsGPU.h"
-#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
-#include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
-#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalCombinedRecordsGPU.h"
+//#include "CondFormats/DataRecord/interface/HcalGainWidthsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalGainsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalLUTCorrsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalTimeCorrsRcd.h"
+//#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 
-#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalGainsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalLUTCorrsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalQIECodersGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalQIETypesGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
-#include "CondFormats/HcalObjects/interface/HcalChannelQualityGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalWidthsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalConvertedEffectivePedestalsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalGainWidthsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalGainsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalLUTCorrsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalQIECodersGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalQIETypesGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalRecoParamsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalRespCorrsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
+//#include "CondFormats/HcalObjects/interface/HcalChannelQualityGPU.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+//#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+//#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
 
@@ -48,28 +48,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     namespace hcal {
       namespace reconstruction {
     
-        struct ConditionsProducts {
-          HcalGainWidthsGPU::Product const& gainWidths;
-          HcalGainsGPU::Product const& gains;
-          HcalLUTCorrsGPU::Product const& lutCorrs;
-          HcalConvertedPedestalWidthsGPU::Product const& pedestalWidths;
-          HcalConvertedEffectivePedestalWidthsGPU::Product const& effectivePedestalWidths;
-          HcalConvertedPedestalsGPU::Product const& pedestals;
-          HcalQIECodersGPU::Product const& qieCoders;
-          HcalChannelQualityGPU::Product const& channelQuality;
-          HcalRecoParamsWithPulseShapesGPU::Product const& recoParams;
-          HcalRespCorrsGPU::Product const& respCorrs;
-          HcalTimeCorrsGPU::Product const& timeCorrs;
-          HcalQIETypesGPU::Product const& qieTypes;
-          HcalSiPMParametersGPU::Product const& sipmParameters;
-          HcalSiPMCharacteristicsGPU::Product const& sipmCharacteristics;
-          HcalConvertedPedestalsGPU::Product const* convertedEffectivePedestals;
-          HcalTopology const* topology;
-          HcalDDDRecConstants const* recConstants;
-          uint32_t offsetForHashes;
-          HcalMahiPulseOffsetsGPU::Product const& pulseOffsets;
-          std::vector<int, cms::cuda::HostAllocator<int>> const& pulseOffsetsHost;
-        };
+        //struct ConditionsProducts {
+        //  HcalGainWidthsGPU::Product const& gainWidths;
+        //  HcalGainsGPU::Product const& gains;
+        //  HcalLUTCorrsGPU::Product const& lutCorrs;
+        //  HcalConvertedPedestalWidthsGPU::Product const& pedestalWidths;
+        //  HcalConvertedEffectivePedestalWidthsGPU::Product const& effectivePedestalWidths;
+        //  HcalConvertedPedestalsGPU::Product const& pedestals;
+        //  HcalQIECodersGPU::Product const& qieCoders;
+        //  HcalChannelQualityGPU::Product const& channelQuality;
+        //  HcalRecoParamsWithPulseShapesGPU::Product const& recoParams;
+        //  HcalRespCorrsGPU::Product const& respCorrs;
+        //  HcalTimeCorrsGPU::Product const& timeCorrs;
+        //  HcalQIETypesGPU::Product const& qieTypes;
+        //  HcalSiPMParametersGPU::Product const& sipmParameters;
+        //  HcalSiPMCharacteristicsGPU::Product const& sipmCharacteristics;
+        //  HcalConvertedPedestalsGPU::Product const* convertedEffectivePedestals;
+        //  HcalTopology const* topology;
+        //  HcalDDDRecConstants const* recConstants;
+        //  uint32_t offsetForHashes;
+        //  HcalMahiPulseOffsetsGPU::Product const& pulseOffsets;
+        //  std::vector<int, cms::cuda::HostAllocator<int>> const& pulseOffsetsHost;
+        //};
     
         struct ConfigParameters {
           uint32_t maxTimeSamples;
@@ -92,30 +92,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           bool applyTimeSlew;
           float tzeroTimeSlew, slopeTimeSlew, tmaxTimeSlew;
         };
-    
-        //struct OutputDataGPU {
-        //  RecHitCollection<::calo::common::DevStoragePolicy> recHits;
-    
-        //  void allocate(ConfigParameters const& config, uint32_t size, cudaStream_t cudaStream) {
-        //    recHits.energy = cms::cuda::make_device_unique<float[]>(size, cudaStream);
-        //    recHits.chi2 = cms::cuda::make_device_unique<float[]>(size, cudaStream);
-        //    recHits.energyM0 = cms::cuda::make_device_unique<float[]>(size, cudaStream);
-        //    recHits.timeM0 = cms::cuda::make_device_unique<float[]>(size, cudaStream);
-        //    recHits.did = cms::cuda::make_device_unique<uint32_t[]>(size, cudaStream);
-        //  }
-        //};
-    
-        //struct ScratchDataGPU {
-        //  cms::cuda::device::unique_ptr<float[]> amplitudes, noiseTerms, electronicNoiseTerms, pulseMatrices,
-        //      pulseMatricesM, pulseMatricesP;
-        //  cms::cuda::device::unique_ptr<int8_t[]> soiSamples;
-        //};
-    
-        //struct InputDataGPU {
-        //  DigiCollection<Flavor1, ::calo::common::DevStoragePolicy> const& f01HEDigis;
-        //  DigiCollection<Flavor5, ::calo::common::DevStoragePolicy> const& f5HBDigis;
-        //  DigiCollection<Flavor3, ::calo::common::DevStoragePolicy> const& f3HBDigis;
-        //};
     
       }  // namespace reconstruction
     }  // namespace hcal
