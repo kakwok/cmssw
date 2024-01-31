@@ -2,6 +2,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsPortable.h"
+#include "CondFormats/DataRecord/interface/HcalMahiConditionsRcd.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsPortable.h"
+#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapePortable.h"
+
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
 #include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
 
@@ -18,7 +25,7 @@
 
 
 //#include "SimpleAlgoGPU.h"
-//#include "DeclsForKernels.h"
+#include "DeclsForKernels.h"
 #include "HBHERecHitProducerPortable.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE{
@@ -46,7 +53,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
    
       const device::ESGetToken<HcalMahiConditionsPortableDevice, HcalMahiConditionsRcd> mahiConditionsToken_;
       const device::ESGetToken<HcalSiPMCharacteristicsPortableDevice, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
- 
       const device::ESGetToken<HcalRecoParamWithPulseShapeDevice, HcalRecoParamsRcd> recoParamsToken_;
       //
       const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
@@ -127,7 +133,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
     }
     
     void HBHERecHitProducerPortable::produce(device::Event& event, device::EventSetup const& setup) {
-      event.emplace(event, rechitsM0Token_, std::move(outputGPU_.recHits));
+      
+      //OProductType uncalibRecHitsDevEB{neb, event.queue()};
+      //event.emplace(event, rechitsM0Token_, std::move(outputGPU_.recHits));
     }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

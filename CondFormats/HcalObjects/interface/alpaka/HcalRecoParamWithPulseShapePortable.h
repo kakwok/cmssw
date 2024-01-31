@@ -25,4 +25,5 @@ namespace cms::alpakatools {
     }
   };
 }
+
 #endif
