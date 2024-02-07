@@ -7,6 +7,7 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
+#include <array>
 
 using  HcalPSfunctorArray   = std::array<float, hcal::constants::maxPSshapeBin>; // 256
 using  HcalPSfunctorBXarray = std::array<float, hcal::constants::nsPerBX>;       // 25

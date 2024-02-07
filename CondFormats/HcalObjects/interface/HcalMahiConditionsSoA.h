@@ -7,6 +7,7 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoAView.h"
 
+#include <array>
 
 static constexpr uint32_t numValuesPerChannel = 16;
 using  HcalPedestalArray   = std::array<float, 4>; // 4 capIds 
