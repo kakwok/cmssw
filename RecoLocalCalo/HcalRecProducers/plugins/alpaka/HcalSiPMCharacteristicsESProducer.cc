@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsPortable.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsSoA.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
 

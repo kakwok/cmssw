@@ -40,8 +40,8 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 //#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 //#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
+//#include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
+//#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
 
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {

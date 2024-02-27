@@ -3,7 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
-#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsPortable.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
 #include "CondFormats/DataRecord/interface/HcalMahiConditionsRcd.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsPortable.h"
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
@@ -49,7 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
       edm::EDGetTokenT<IProductTypef3> digisTokenF3HB_;
     
       using OProductType = hcal::RecHitDeviceCollection;
-      edm::EDPutTokenT<OProductType> rechitsM0Token_;
+      device::EDPutToken<OProductType> rechitsM0Token_;
    
       const device::ESGetToken<HcalMahiConditionsPortableDevice, HcalMahiConditionsRcd> mahiConditionsToken_;
       const device::ESGetToken<HcalSiPMCharacteristicsPortableDevice, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
         : digisTokenF01HE_{consumes<IProductTypef01>(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
           digisTokenF5HB_{consumes<IProductTypef5>(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
           digisTokenF3HB_{consumes<IProductTypef3>(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
-          rechitsM0Token_{produces<OProductType>(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
+          rechitsM0Token_{produces(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
           mahiConditionsToken_{esConsumes()},
           sipmCharacteristicsToken_{esConsumes()},
           recoParamsToken_{esConsumes()},
