@@ -1,7 +1,7 @@
 #ifndef CondFormats_HcalObjects_interface_alpaka_HcalSiPMCharacteristicsPortable_h
 #define CondFormats_HcalObjects_interface_alpaka_HcalSiPMCharacteristicsPortable_h
 
-#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsPortable.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsHost.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristicsSoA.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
