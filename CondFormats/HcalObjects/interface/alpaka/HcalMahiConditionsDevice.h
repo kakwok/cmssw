@@ -1,7 +1,7 @@
 #ifndef CondFormats_HcalObjects_interface_alpaka_HcalMahiConditionsPortable_h
 #define CondFormats_HcalObjects_interface_alpaka_HcalMahiConditionsPortable_h
 
-#include "CondFormats/HcalObjects/interface/HcalMahiConditionsPortable.h"
+#include "CondFormats/HcalObjects/interface/HcalMahiConditionsHost.h"
 #include "CondFormats/HcalObjects/interface/HcalMahiConditionsSoA.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
