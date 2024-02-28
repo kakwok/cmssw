@@ -1,5 +1,5 @@
-#ifndef CondFormats_HcalObjects_interface_HcalRecoParamWithPulseShapePortable_h
-#define CondFormats_HcalObjects_interface_HcalRecoParamWithPulseShapePortable_h
+#ifndef CondFormats_HcalObjects_interface_HcalRecoParamWithPulseShapeHost_h
+#define CondFormats_HcalObjects_interface_HcalRecoParamWithPulseShapeHost_h
 
 #include "CondFormats/HcalObjects/interface/HcalRecoParamWithPulseShapeSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"

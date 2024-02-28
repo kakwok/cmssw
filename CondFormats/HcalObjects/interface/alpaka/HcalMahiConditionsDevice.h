@@ -1,5 +1,5 @@
-#ifndef CondFormats_HcalObjects_interface_alpaka_HcalMahiConditionsPortable_h
-#define CondFormats_HcalObjects_interface_alpaka_HcalMahiConditionsPortable_h
+#ifndef CondFormats_HcalObjects_interface_alpaka_HcalMahiConditionsDevice_h
+#define CondFormats_HcalObjects_interface_alpaka_HcalMahiConditionsDevice_h
 
 #include "CondFormats/HcalObjects/interface/HcalMahiConditionsHost.h"
 #include "CondFormats/HcalObjects/interface/HcalMahiConditionsSoA.h"

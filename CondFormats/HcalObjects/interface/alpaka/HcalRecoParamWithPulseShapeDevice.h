@@ -1,7 +1,7 @@
-#ifndef CondFormats_HcalObjects_interface_alpaka_HcalRecoParamWithPulseShapePortable_h
-#define CondFormats_HcalObjects_interface_alpaka_HcalRecoParamWithPulseShapePortable_h
+#ifndef CondFormats_HcalObjects_interface_alpaka_HcalRecoParamWithPulseShapeDevice_h
+#define CondFormats_HcalObjects_interface_alpaka_HcalRecoParamWithPulseShapeDevice_h
 
-#include "CondFormats/HcalObjects/interface/HcalRecoParamWithPulseShapePortable.h"
+#include "CondFormats/HcalObjects/interface/HcalRecoParamWithPulseShapeHost.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParamWithPulseShapeSoA.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
