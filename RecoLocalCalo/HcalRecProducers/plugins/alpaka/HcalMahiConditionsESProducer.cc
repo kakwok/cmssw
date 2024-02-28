@@ -28,7 +28,7 @@
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
 
 
-#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsPortable.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
 #include "CondFormats/HcalObjects/interface/HcalMahiConditionsSoA.h"
 #include "CondFormats/DataRecord/interface/HcalMahiConditionsRcd.h"
 

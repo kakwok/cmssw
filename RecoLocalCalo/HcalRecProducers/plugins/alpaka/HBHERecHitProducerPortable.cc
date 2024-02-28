@@ -5,9 +5,9 @@
 #include "CondFormats/DataRecord/interface/HcalSiPMCharacteristicsRcd.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
 #include "CondFormats/DataRecord/interface/HcalMahiConditionsRcd.h"
-#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsPortable.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
-#include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapePortable.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapeDevice.h"
 
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
 #include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
