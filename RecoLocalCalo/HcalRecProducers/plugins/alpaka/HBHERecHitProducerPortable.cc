@@ -23,8 +23,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 
-
-//#include "SimpleAlgoGPU.h"
+#include "Mahi.h"
 #include "DeclsForKernels.h"
 #include "HBHERecHitProducerPortable.h"
 
@@ -40,16 +39,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
       void produce(device::Event&, device::EventSetup const&) override;
     
       using IProductTypef01 = hcal::Phase1DigiDeviceCollection;
-      edm::EDGetTokenT<IProductTypef01> digisTokenF01HE_;
+      const device::EDGetToken<IProductTypef01> digisTokenF01HE_;
     
       using IProductTypef5 = hcal::Phase0DigiDeviceCollection;
-      edm::EDGetTokenT<IProductTypef5> digisTokenF5HB_;
+      const device::EDGetToken<IProductTypef5> digisTokenF5HB_;
     
       using IProductTypef3 = hcal::Phase1DigiDeviceCollection;
-      edm::EDGetTokenT<IProductTypef3> digisTokenF3HB_;
+      const device::EDGetToken<IProductTypef3> digisTokenF3HB_;
     
       using OProductType = hcal::RecHitDeviceCollection;
-      device::EDPutToken<OProductType> rechitsM0Token_;
+      const device::EDPutToken<OProductType> rechitsM0Token_;
    
       const device::ESGetToken<HcalMahiConditionsPortableDevice, HcalMahiConditionsRcd> mahiConditionsToken_;
       const device::ESGetToken<HcalSiPMCharacteristicsPortableDevice, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
@@ -64,9 +63,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
     };
     
     HBHERecHitProducerPortable::HBHERecHitProducerPortable(edm::ParameterSet const& ps)
-        : digisTokenF01HE_{consumes<IProductTypef01>(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
-          digisTokenF5HB_{consumes<IProductTypef5>(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
-          digisTokenF3HB_{consumes<IProductTypef3>(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
+        : digisTokenF01HE_{consumes(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
+          digisTokenF5HB_{consumes(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
+          digisTokenF3HB_{consumes(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
           rechitsM0Token_{produces(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
           mahiConditionsToken_{esConsumes()},
           sipmCharacteristicsToken_{esConsumes()},
@@ -107,35 +106,88 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
     
     void HBHERecHitProducerPortable::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
       edm::ParameterSetDescription desc;
-     // desc.add<uint32_t>("maxTimeSamples", 10);
-     // desc.add<uint32_t>("kprep1dChannelsPerBlock", 32);
-     // desc.add<edm::InputTag>("digisLabelF01HE", edm::InputTag{"hcalRawToDigiGPU", "f01HEDigisGPU"});
-     // desc.add<edm::InputTag>("digisLabelF5HB", edm::InputTag{"hcalRawToDigiGPU", "f5HBDigisGPU"});
-     // desc.add<edm::InputTag>("digisLabelF3HB", edm::InputTag{"hcalRawToDigiGPU", "f3HBDigisGPU"});
-     // desc.add<std::string>("recHitsLabelM0HBHE", "recHitsM0HBHE");
-     // desc.add<int>("sipmQTSShift", 0);
-     // desc.add<int>("sipmQNTStoSum", 3);
-     // desc.add<int>("firstSampleShift", 0);
-     // desc.add<bool>("useEffectivePedestals", true);
+      desc.add<uint32_t>("maxTimeSamples", 10);
+      desc.add<uint32_t>("kprep1dChannelsPerBlock", 32);
+      desc.add<edm::InputTag>("digisLabelF01HE", edm::InputTag{"hcalRawToDigiGPU", "f01HEDigisGPU"});
+      desc.add<edm::InputTag>("digisLabelF5HB", edm::InputTag{"hcalRawToDigiGPU", "f5HBDigisGPU"});
+      desc.add<edm::InputTag>("digisLabelF3HB", edm::InputTag{"hcalRawToDigiGPU", "f3HBDigisGPU"});
+      desc.add<std::string>("recHitsLabelM0HBHE", "recHitsM0HBHE");
+      desc.add<int>("sipmQTSShift", 0);
+      desc.add<int>("sipmQNTStoSum", 3);
+      desc.add<int>("firstSampleShift", 0);
+      desc.add<bool>("useEffectivePedestals", true);
     
-     // desc.add<double>("meanTime", 0.f);
-     // desc.add<double>("timeSigmaSiPM", 2.5f);
-     // desc.add<double>("timeSigmaHPD", 5.0f);
-     // desc.add<double>("ts4Thresh", 0.0);
+      desc.add<double>("meanTime", 0.f);
+      desc.add<double>("timeSigmaSiPM", 2.5f);
+      desc.add<double>("timeSigmaHPD", 5.0f);
+      desc.add<double>("ts4Thresh", 0.0);
     
-     // desc.add<bool>("applyTimeSlew", true);
-     // desc.add<std::vector<double>>("tzeroTimeSlewParameters", {23.960177, 11.977461, 9.109694});
-     // desc.add<std::vector<double>>("slopeTimeSlewParameters", {-3.178648, -1.5610227, -1.075824});
-     // desc.add<std::vector<double>>("tmaxTimeSlewParameters", {16.00, 10.00, 6.25});
-     // desc.add<std::vector<uint32_t>>("kernelMinimizeThreads", {16, 1, 1});
+      desc.add<bool>("applyTimeSlew", true);
+      desc.add<std::vector<double>>("tzeroTimeSlewParameters", {23.960177, 11.977461, 9.109694});
+      desc.add<std::vector<double>>("slopeTimeSlewParameters", {-3.178648, -1.5610227, -1.075824});
+      desc.add<std::vector<double>>("tmaxTimeSlewParameters", {16.00, 10.00, 6.25});
+      desc.add<std::vector<uint32_t>>("kernelMinimizeThreads", {16, 1, 1});
     
-     // cdesc.addWithDefaultLabel(desc);
+      cdesc.addWithDefaultLabel(desc);
     }
+
+    ////// MK:: Do we need this???? //
+    //void HBHERecHitProducerPortable::acquire(device::Event const& event, device::EventSetup const& setup) {
+    //   auto& queue = event.queue();
+
+    //   // get device collections from event
+    //   auto const& f01HEDigis = event.get(digisTokenF01HE_);
+    //   auto const& f5HEDigis = event.get(digisTokenF5HB_);
+    //   auto const& f3HBDigis = event.get(digisTokenF3HB_);
+
+    //   // copy the actual numbers of digis in the collections to host   ////// MK:: Do we need this???? //
+    //   // auto f01HEDigisSizeDevConstView =
+    //   //     cms::alpakatools::make_device_view<const uint32_t>(alpaka::getDev(queue), f01HEDigisDev.const_view().size());
+    //   // auto eeDigisSizeDevConstView =
+    //   //     cms::alpakatools::make_device_view<const uint32_t>(alpaka::getDev(queue), eeDigisDev.const_view().size());
+    //   // alpaka::memcpy(queue, ebDigisSizeHostBuf_, ebDigisSizeDevConstView);
+    //   // alpaka::memcpy(queue, eeDigisSizeHostBuf_, eeDigisSizeDevConstView);
+    //}
     
     void HBHERecHitProducerPortable::produce(device::Event& event, device::EventSetup const& setup) {
+     
+        auto& queue = event.queue();
+        
+        // get device collections from event
+        auto const& f01HEDigisDev = event.get(digisTokenF01HE_);
+        auto const& f5HBDigisDev = event.get(digisTokenF5HB_);
+        auto const& f3HBDigisDev = event.get(digisTokenF3HB_);
       
-      //OProductType uncalibRecHitsDevEB{neb, event.queue()};
-      //event.emplace(event, rechitsM0Token_, std::move(outputGPU_.recHits));
+        auto const f01DigisSize = f01HEDigisDev.const_view().size();
+        auto const f5DigisSize = f5HBDigisDev.const_view().size();
+        auto const f3DigisSize = f3HBDigisDev.const_view().size();
+
+        auto const totalChannels =static_cast<int>(f01DigisSize + f5DigisSize + f3DigisSize);
+        OProductType outputGPU_{totalChannels, queue};
+
+        if (totalChannels > 0) {
+          // conditions
+          auto const& mahiConditionsDev = setup.getData(mahiConditionsToken_);
+          auto const& sipmCharacteristicsDev = setup.getData(sipmCharacteristicsToken_);
+          auto const& recoParamsWithPulseShapeDev = setup.getData(recoParamsToken_);
+
+          hcal::reconstruction::ConditionsProducts conditions{mahiConditionsDev,
+                                                              sipmCharacteristicsDev,
+                                                              recoParamsWithPulseShapeDev};
+          //
+          // schedule algorithms
+          //
+          hcal::reconstruction::entryPoint(queue,
+                                        f01HEDigisDev,
+                                        f5HBDigisDev,
+                                        f3HBDigisDev,
+                                        outputGPU_,
+                                        conditions,
+                                        configParameters_);
+        }
+
+        //put into the event
+        event.emplace(rechitsM0Token_, std::move(outputGPU_));
     }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

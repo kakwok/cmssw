@@ -35,41 +35,23 @@
 //#include "CondFormats/HcalObjects/interface/HcalSiPMParametersGPU.h"
 //#include "CondFormats/HcalObjects/interface/HcalTimeCorrsGPU.h"
 //#include "CondFormats/HcalObjects/interface/HcalChannelQualityGPU.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalSiPMCharacteristicsDevice.h"
+#include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapeDevice.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-//#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-//#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-//#include "RecoLocalCalo/HcalRecAlgos/interface/HcalMahiPulseOffsetsGPU.h"
-//#include "RecoLocalCalo/HcalRecAlgos/interface/HcalRecoParamsWithPulseShapesGPU.h"
 
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
     namespace hcal {
       namespace reconstruction {
     
-        //struct ConditionsProducts {
-        //  HcalGainWidthsGPU::Product const& gainWidths;
-        //  HcalGainsGPU::Product const& gains;
-        //  HcalLUTCorrsGPU::Product const& lutCorrs;
-        //  HcalConvertedPedestalWidthsGPU::Product const& pedestalWidths;
-        //  HcalConvertedEffectivePedestalWidthsGPU::Product const& effectivePedestalWidths;
-        //  HcalConvertedPedestalsGPU::Product const& pedestals;
-        //  HcalQIECodersGPU::Product const& qieCoders;
-        //  HcalChannelQualityGPU::Product const& channelQuality;
-        //  HcalRecoParamsWithPulseShapesGPU::Product const& recoParams;
-        //  HcalRespCorrsGPU::Product const& respCorrs;
-        //  HcalTimeCorrsGPU::Product const& timeCorrs;
-        //  HcalQIETypesGPU::Product const& qieTypes;
-        //  HcalSiPMParametersGPU::Product const& sipmParameters;
-        //  HcalSiPMCharacteristicsGPU::Product const& sipmCharacteristics;
-        //  HcalConvertedPedestalsGPU::Product const* convertedEffectivePedestals;
-        //  HcalTopology const* topology;
-        //  HcalDDDRecConstants const* recConstants;
-        //  uint32_t offsetForHashes;
-        //  HcalMahiPulseOffsetsGPU::Product const& pulseOffsets;
-        //  std::vector<int, cms::cuda::HostAllocator<int>> const& pulseOffsetsHost;
-        //};
+        struct ConditionsProducts {
+            HcalMahiConditionsPortableDevice const& mahi;
+            HcalSiPMCharacteristicsPortableDevice const& sipmCharacteristics;
+            HcalRecoParamWithPulseShapeDevice const& recoParams;
+        };
     
         struct ConfigParameters {
           uint32_t maxTimeSamples;
