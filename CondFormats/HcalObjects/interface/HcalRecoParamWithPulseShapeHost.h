@@ -7,25 +7,6 @@
 #include "DataFormats/Portable/interface/PortableCollection.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 
-//using HcalRecoParamPortableHost = PortableHostCollection<HcalRecoParamSoA>;
-//using HcalPulseShapePortableHost = PortableHostCollection<HcalPulseShapeSoA>;
-//class HcalRecoParamWithPulseShapeHost{
-//
-//    HcalRecoParamPortableHost recoParam_;
-//    HcalPulseShapePortableHost pulseShape_;
-//
-//   // ConstView is passed to the kernel by value
-//    class ConstView {
-//    
-//      float pulseShape(int id) const {
-//        // code to go through the indirection from view1_ to view2_/view3_
-//      }
-//    
-//      SOA1ConstView view1_;
-//      SOA2ConstView view2_;
-//      SOA3ConstView view3_;
-//    }; 
-//}
 
 template <typename TDev>
 class HcalRecoParamWithPulseShapeT {
@@ -36,9 +17,11 @@ public:
   class ConstView {
     constexpr float pulseShape(int id) const {return 0; }
 
+    typename RecoParamCollection::ConstView recoParamView() { return recoParam_.const_view(); }
+    typename PulseShapeCollection::ConstView pulseShapeView() { return pulseShape_.const_view(); }
   private:
-    typename RecoParamCollection::View recoParamView_;
-    typename PulseShapeCollection::View pulseShapeView_;
+    typename RecoParamCollection::ConstView recoParamView_;
+    typename PulseShapeCollection::ConstView pulseShapeView_;
   };
 
   HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TDev const& dev) : recoParam_(recoSize, dev), pulseShape_(pulseSize, dev) {}
@@ -52,7 +35,10 @@ public:
   typename RecoParamCollection::View recoParamView() { return recoParam_.view(); }
   typename PulseShapeCollection::View pulseShapeView() { return pulseShape_.view(); }
 
+  ConstView const_view() const {return cv_;}
+
 private:
+  ConstView cv_;
   RecoParamCollection recoParam_;
   PulseShapeCollection pulseShape_;
 };

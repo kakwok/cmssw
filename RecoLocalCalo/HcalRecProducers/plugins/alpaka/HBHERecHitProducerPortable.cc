@@ -24,7 +24,8 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 
 #include "Mahi.h"
-#include "DeclsForKernels.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+//#include "DeclsForKernels.h"
 #include "HBHERecHitProducerPortable.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE{
@@ -131,24 +132,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
       cdesc.addWithDefaultLabel(desc);
     }
 
-    ////// MK:: Do we need this???? //
-    //void HBHERecHitProducerPortable::acquire(device::Event const& event, device::EventSetup const& setup) {
-    //   auto& queue = event.queue();
-
-    //   // get device collections from event
-    //   auto const& f01HEDigis = event.get(digisTokenF01HE_);
-    //   auto const& f5HEDigis = event.get(digisTokenF5HB_);
-    //   auto const& f3HBDigis = event.get(digisTokenF3HB_);
-
-    //   // copy the actual numbers of digis in the collections to host   ////// MK:: Do we need this???? //
-    //   // auto f01HEDigisSizeDevConstView =
-    //   //     cms::alpakatools::make_device_view<const uint32_t>(alpaka::getDev(queue), f01HEDigisDev.const_view().size());
-    //   // auto eeDigisSizeDevConstView =
-    //   //     cms::alpakatools::make_device_view<const uint32_t>(alpaka::getDev(queue), eeDigisDev.const_view().size());
-    //   // alpaka::memcpy(queue, ebDigisSizeHostBuf_, ebDigisSizeDevConstView);
-    //   // alpaka::memcpy(queue, eeDigisSizeHostBuf_, eeDigisSizeDevConstView);
-    //}
-    
     void HBHERecHitProducerPortable::produce(device::Event& event, device::EventSetup const& setup) {
      
         auto& queue = event.queue();
@@ -158,11 +141,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
         auto const& f5HBDigisDev = event.get(digisTokenF5HB_);
         auto const& f3HBDigisDev = event.get(digisTokenF3HB_);
       
-        auto const f01DigisSize = f01HEDigisDev.const_view().size();
-        auto const f5DigisSize = f5HBDigisDev.const_view().size();
-        auto const f3DigisSize = f3HBDigisDev.const_view().size();
+        auto const f01DigisSize = f01HEDigisDev->metadata().size();
+        auto const f5DigisSize = f5HBDigisDev->metadata().size();
+        auto const f3DigisSize = f3HBDigisDev->metadata().size();
 
-        auto const totalChannels =static_cast<int>(f01DigisSize + f5DigisSize + f3DigisSize);
+        auto const totalChannels =f01DigisSize + f5DigisSize + f3DigisSize;
         OProductType outputGPU_{totalChannels, queue};
 
         if (totalChannels > 0) {
@@ -171,21 +154,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
           auto const& sipmCharacteristicsDev = setup.getData(sipmCharacteristicsToken_);
           auto const& recoParamsWithPulseShapeDev = setup.getData(recoParamsToken_);
 
-          hcal::reconstruction::ConditionsProducts conditions{mahiConditionsDev,
-                                                              sipmCharacteristicsDev,
-                                                              recoParamsWithPulseShapeDev};
           //
           // schedule algorithms
           //
           hcal::reconstruction::entryPoint(queue,
-                                        f01HEDigisDev,
-                                        f5HBDigisDev,
-                                        f3HBDigisDev,
-                                        outputGPU_,
-                                        conditions,
+                                        f01HEDigisDev.const_view(),
+                                        f5HBDigisDev.const_view(),
+                                        f3HBDigisDev.const_view(),
+                                        outputGPU_.view(),
+                                        mahiConditionsDev.const_view(),
+                                        sipmCharacteristicsDev.const_view(),
+                                        recoParamsWithPulseShapeDev.const_view(),  
                                         configParameters_);
         }
-
         //put into the event
         event.emplace(rechitsM0Token_, std::move(outputGPU_));
     }

@@ -1072,28 +1072,29 @@ namespace hcal {
   namespace reconstruction {
 
     void entryPoint(Queue& queue,
-                    IProductTypef01 const& f01HEDigis,
-                    IProductTypef5 const& f5HBDigis,
-                    IProductTypef3 const& f3HBDigis,
-                    OProductType& outputGPU,
-                    ConditionsProducts const& conditions,
+                    IProductTypef01::ConstView const& f01HEDigis,
+                    IProductTypef5::ConstView const& f5HBDigis,
+                    IProductTypef3::ConstView const& f3HBDigis,
+                    OProductType::View outputGPU,
+                    HcalMahiConditionsPortableDevice::ConstView const& mahi,
+                    HcalSiPMCharacteristicsPortableDevice::ConstView const& sipmCharacteristics,
+                    HcalRecoParamWithPulseShapeDevice::ConstView const& recoParams,
                     ConfigParameters const& configParameters
                     ){
 
-      //auto const totalChannels = f01HEDigis.size + f5HBDigis.size + f3HBDigis.size;
-
+      auto const totalChannels = f01HEDigis.size() + f5HBDigis.size() + f3HBDigis.size();
       // FIXME: the number of channels in output might change given that some channesl might be filtered out
 
       // do not run when there are no rechits (e.g. if HCAL is not being read),
       // but do set the size of the output collection to 0
-      //outputGPU.recHits.size = totalChannels;
-      //if (totalChannels == 0) {
-      //  return;
-      //}
+      outputGPU.size() = totalChannels;
+      if (totalChannels == 0) {
+        return;
+      }
 
-      //// TODO: this can be lifted by implementing a separate kernel
-      //// similar to the default one, but properly handling the diff in #sample
-      //// or modifying existing one
+      // TODO: this can be lifted by implementing a separate kernel
+      // similar to the default one, but properly handling the diff in #sample
+      // or modifying existing one
       //auto const f01nsamples = compute_nsamples<Flavor1>(inputGPU.f01HEDigis.stride);
       //auto const f5nsamples = compute_nsamples<Flavor5>(inputGPU.f5HBDigis.stride);
       //auto const f3nsamples = compute_nsamples<Flavor3>(inputGPU.f3HBDigis.stride);
