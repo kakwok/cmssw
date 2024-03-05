@@ -73,7 +73,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
 //
 //    // Assume: same number of samples for HB and HE
 //    // TODO: add/validate restrict (will increase #registers in use by the kernel)
-//    __global__ void kernel_prep1d_sameNumberOfSamples(float* amplitudes,
+//    __global__ void kernel_prep1d_sameNumberOfSamples(
+//                                                      float* amplitudes,
 //                                                      float* noiseTerms,
 //                                                      float* electronicNoiseTerms,
 //                                                      float* outputEnergy,
@@ -1067,7 +1068,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
 //
 //  }  // namespace mahi
 //}  // namespace hcal
+namespace hcal::reconstruction {
+  namespace mahi {
+    class kernel_prep1d_sameNumberOfSamples{ 
+    public:
+        template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+            ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                          //float* amplitudes,
+                                          //float* noiseTerms,
+                                          //float* electronicNoiseTerms,
+                                          OProductType::View outputGPU,
+                                          IProductTypef01::ConstView const& f01HEDigis,
+                                          IProductTypef5::ConstView const& f5HBDigis,
+                                          IProductTypef3::ConstView const& f3HBDigis,
+                                          HcalMahiConditionsPortableDevice::ConstView const& mahi,
+                                          HcalSiPMCharacteristicsPortableDevice::ConstView const& sipmCharacteristics,
+                                          HcalRecoParamWithPulseShapeDevice::ConstView const& recoParams,
+                                          bool const useEffectivePedestals,
+                                          int const sipmQTSShift,
+                                          int const sipmQNTStoSum,
+                                          int const firstSampleShift,
+                                          float const ts4Thresh) const {
 
+
+
+
+
+        }        
+    };
+  } // namespace mahi
+} // namespace hcal
 namespace hcal {
   namespace reconstruction {
 
@@ -1105,6 +1135,38 @@ namespace hcal {
       //  assert(f01nsamples == f5nsamples);
       //if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f3HBDigis.stride > 0)
       //  assert(f01nsamples == f3nsamples);
+      
+
+      //compute work division      
+      int constexpr windowSize = 8;
+      uint32_t  nchannels_per_block = configParameters.kprep1dChannelsPerBlock;
+
+      auto const blocks_y = cms::alpakatools::divide_up_by(totalChannels , nchannels_per_block);
+      Vec2D const blocks_2d{blocks_y, 1u};  // {y, x} coordiantes
+      Vec2D const threads_2d{nchannels_per_block, windowSize};
+      auto workDivPrep2D = cms::alpakatools::make_workdiv<Acc2D>(blocks_2d, threads_2d);
+
+      //share memory buffer per block
+      //cms::alpakatools::device_buffer<Device, float[]> amplitudes = cms::alpakatools::make_device_buffer<float[]>(totalChannels*windowSize); 
+      //cms::alpakatools::device_buffer<Device, float[]> noiseTerms = cms::alpakatools::make_device_buffer<float[]>(); 
+      //cms::alpakatools::device_buffer<Device, float[]> electronicNoiseTerms = cms::alpakatools::make_device_buffer<float[]>(); 
+
+      alpaka::exec<Acc2D>(queue,
+                          workDivPrep2D,
+                          mahi::kernel_prep1d_sameNumberOfSamples{},
+                          outputGPU,
+                          f01HEDigis,
+                          f5HBDigis,
+                          f3HBDigis,
+                          mahi,
+                          sipmCharacteristics,
+                          recoParams,
+                          configParameters.useEffectivePedestals,
+                          configParameters.sipmQTSShift,
+                          configParameters.sipmQNTStoSum,
+                          configParameters.firstSampleShift,
+                          configParameters.ts4Thresh
+      );
 
       //dim3 threadsPerBlock{windowSize, configParameters.kprep1dChannelsPerBlock};
       //int blocks = static_cast<uint32_t>(threadsPerBlock.y) > totalChannels
