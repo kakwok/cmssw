@@ -27,6 +27,8 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
 #include "CondFormats/HcalObjects/interface/alpaka/HcalMahiConditionsDevice.h"
 #include "CondFormats/HcalObjects/interface/HcalMahiConditionsSoA.h"
@@ -79,6 +81,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       qieTypesToken_ = cc.consumes();
       qieDataToken_ = cc.consumes();
       sipmParametersToken_ = cc.consumes();
+      topologyToken_ = cc.consumes();
+      recConstantsToken_ = cc.consumes();
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -100,6 +104,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const& qieTypes       = iRecord.get(qieTypesToken_);
       auto const& qieData       = iRecord.get(qieDataToken_);
       auto const& sipmParameters = iRecord.get(sipmParametersToken_);
+      auto const& topology       = iRecord.get(topologyToken_);
+      auto const& recConstants   = iRecord.get(recConstantsToken_);
 
       size_t const totalChannels = pedestals.getAllContainers()[0].second.size() + pedestals.getAllContainers()[1].second.size();
 
@@ -298,6 +304,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           vi.sipmPar_auxi2() = sipmParameters_endcaps[i].getauxi2(); 
 
       }
+      //fill the scalars
+      static const int IPHI_MAX = 72; // private member of topology
+
+      view.maxDepthHB() = topology.maxDepthHB(); 
+      view.maxDepthHE() = topology.maxDepthHE();
+      view.maxPhiHE()   =  recConstants.getNPhi(1)> IPHI_MAX ? recConstants.getNPhi(1): IPHI_MAX;
+      view.firstHBRing() = topology.firstHBRing();  
+      view.lastHBRing() =  topology.lastHERing();
+      view.firstHERing() = topology.firstHERing();
+      view.lastHERing() =  topology.lastHERing();
+      view.nEtaHB() = recConstants.getEtaRange(0).second - recConstants.getEtaRange(0).first + 1;
+      view.nEtaHE() = topology.firstHERing() > topology.lastHERing()
+                        ? 0
+                        : (topology.lastHERing() - topology.firstHERing() + 1); 
+
       return product;
     }
 
@@ -314,6 +335,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ESGetToken<HcalQIETypes       , HcalQIETypesRcd      > qieTypesToken_;
     edm::ESGetToken<HcalQIEData        , HcalQIEDataRcd      > qieDataToken_;
     edm::ESGetToken<HcalSiPMParameters , HcalSiPMParametersRcd > sipmParametersToken_;
+    edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
+    edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> recConstantsToken_;
 
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -53,7 +53,16 @@ GENERATE_SOA_LAYOUT(HcalMahiConditionsSoALayout,
                     SOA_COLUMN(int, sipmPar_auxi1),
                     SOA_COLUMN(float, sipmPar_fcByPE),
                     SOA_COLUMN(float, sipmPar_darkCurrent),
-                    SOA_COLUMN(float, sipmPar_auxi2)
+                    SOA_COLUMN(float, sipmPar_auxi2),
+                    SOA_SCALAR(int, maxDepthHB),
+                    SOA_SCALAR(int, maxDepthHE),
+                    SOA_SCALAR(int, maxPhiHE),
+                    SOA_SCALAR(int, firstHBRing),
+                    SOA_SCALAR(int, lastHBRing),
+                    SOA_SCALAR(int, firstHERing),
+                    SOA_SCALAR(int, lastHERing),
+                    SOA_SCALAR(int, nEtaHB),
+                    SOA_SCALAR(int, nEtaHE)
                     )
 using HcalMahiConditionsSoA = HcalMahiConditionsSoALayout<>;
 

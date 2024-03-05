@@ -12,9 +12,6 @@
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
 #include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
 
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
@@ -25,7 +22,6 @@
 
 #include "Mahi.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
-//#include "DeclsForKernels.h"
 #include "HBHERecHitProducerPortable.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE{
@@ -55,9 +51,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
       const device::ESGetToken<HcalSiPMCharacteristicsPortableDevice, HcalSiPMCharacteristicsRcd> sipmCharacteristicsToken_;
       const device::ESGetToken<HcalRecoParamWithPulseShapeDevice, HcalRecoParamsRcd> recoParamsToken_;
       //
-      const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topologyToken_;
-      const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> recConstantsToken_;
-      //
     
       hcal::reconstruction::ConfigParameters configParameters_;
       //hcal::reconstruction::OutputDataGPU outputGPU_;
@@ -70,9 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE{
           rechitsM0Token_{produces(ps.getParameter<std::string>("recHitsLabelM0HBHE"))},
           mahiConditionsToken_{esConsumes()},
           sipmCharacteristicsToken_{esConsumes()},
-          recoParamsToken_{esConsumes()},
-          topologyToken_{esConsumes()},
-          recConstantsToken_{esConsumes()}{
+          recoParamsToken_{esConsumes()}{
       configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
       configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
       configParameters_.sipmQTSShift = ps.getParameter<int>("sipmQTSShift");

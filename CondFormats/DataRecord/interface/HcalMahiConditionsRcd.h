@@ -15,7 +15,7 @@
 #include "CondFormats/DataRecord/interface/HcalQIETypesRcd.h"
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/HcalSiPMParametersRcd.h"
-
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 class HcalMahiConditionsRcd :
     public edm::eventsetup::DependentRecordImplementation<HcalMahiConditionsRcd,
@@ -30,5 +30,6 @@ class HcalMahiConditionsRcd :
                                                                      HcalChannelQualityRcd,
                                                                      HcalQIETypesRcd,
                                                                      HcalQIEDataRcd,
-                                                                     HcalSiPMParametersRcd>> {};
+                                                                     HcalSiPMParametersRcd,
+                                                                     HcalRecNumberingRecord>> {};
 #endif
