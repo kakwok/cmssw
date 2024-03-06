@@ -15,10 +15,18 @@ public:
   using PulseShapeCollection = PortableCollection<HcalPulseShapeSoA, TDev>;
 
   class ConstView {
+
+  public:
+    ConstView() = default;
+
+    ConstView(typename RecoParamCollection::ConstView recoView, typename PulseShapeCollection::ConstView psView)
+            : recoParamView_{recoView},
+              pulseShapeView_{psView}{
+    };
     constexpr float pulseShape(int id) const {return 0; }
 
-    typename RecoParamCollection::ConstView recoParamView() { return recoParam_.const_view(); }
-    typename PulseShapeCollection::ConstView pulseShapeView() { return pulseShape_.const_view(); }
+    typename RecoParamCollection::ConstView recoParamView() { return recoParamView_; }
+    typename PulseShapeCollection::ConstView pulseShapeView() { return pulseShapeView_; }
   private:
     typename RecoParamCollection::ConstView recoParamView_;
     typename PulseShapeCollection::ConstView pulseShapeView_;
@@ -35,10 +43,9 @@ public:
   typename RecoParamCollection::View recoParamView() { return recoParam_.view(); }
   typename PulseShapeCollection::View pulseShapeView() { return pulseShape_.view(); }
 
-  ConstView const_view() const {return cv_;}
+  ConstView const_view() const {return ConstView(recoParam_.view(),pulseShape_.view());}
 
 private:
-  ConstView cv_;
   RecoParamCollection recoParam_;
   PulseShapeCollection pulseShape_;
 };

@@ -1088,13 +1088,31 @@ namespace hcal::reconstruction {
                                           int const sipmQTSShift,
                                           int const sipmQNTStoSum,
                                           int const firstSampleShift,
-                                          float const ts4Thresh) const {
+                                          float const ts4Thresh,
+                                          int const startingSample) const {
+            
+        auto const totalChannels = f01HEDigis.size() + f5HBDigis.size() + f3HBDigis.size();  
 
+        //first index = groups of channel
+        auto const nchannels_per_block(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u]);
+        //2nd index = groups of sample
+        auto const nsamplesForCompute(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[1u]);
 
+        //Loop over all groups of channels
+        for (auto group : cms::alpakatools::independent_groups_y(acc)){
+            //Loop over each channel
+            for(auto channel : cms::alpakatools::independent_group_elements_y(acc)){
+                auto const gch = channel.global;
+                auto const lch = channel.local;
+                //Loop over sample
+                for(int i_sample : cms::alpakatools::independent_group_elements_x(acc)){
 
-
-
-        }        
+                    auto const sampleWithinWindow = i_sample;
+                    auto const sample             = i_sample + startingSample;
+                    auto const linearThPerBlock   = i_sample * channel.local;
+                }
+            }
+        }
     };
   } // namespace mahi
 } // namespace hcal
@@ -1125,20 +1143,21 @@ namespace hcal {
       // TODO: this can be lifted by implementing a separate kernel
       // similar to the default one, but properly handling the diff in #sample
       // or modifying existing one
-      //auto const f01nsamples = compute_nsamples<Flavor1>(inputGPU.f01HEDigis.stride);
-      //auto const f5nsamples = compute_nsamples<Flavor5>(inputGPU.f5HBDigis.stride);
-      //auto const f3nsamples = compute_nsamples<Flavor3>(inputGPU.f3HBDigis.stride);
-      //int constexpr windowSize = 8;
-      //int const startingSample = f01nsamples - windowSize;
-      //assert(startingSample == 0 || startingSample == 2);
-      //if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f5HBDigis.stride > 0)
-      //  assert(f01nsamples == f5nsamples);
-      //if (inputGPU.f01HEDigis.stride > 0 && inputGPU.f3HBDigis.stride > 0)
-      //  assert(f01nsamples == f3nsamples);
-      
+      static constexpr int HEADER_WORDS = 1;
+      static constexpr int SAMPLES_PER_WORD = 2;
+
+      auto const f01nsamples = f01HEDigis.stride() - HEADER_WORDS ;
+      auto const f5nsamples = (f5HBDigis.stride() - HEADER_WORDS) * SAMPLES_PER_WORD;
+      auto const f3nsamples = f3HBDigis.stride() - HEADER_WORDS;
+      int constexpr windowSize = 8;
+      int const startingSample = f01nsamples - windowSize;
+      assert(startingSample == 0 || startingSample == 2);
+      if (f01HEDigis.stride() > 0 && f5HBDigis.stride() > 0)
+        assert(f01nsamples == f5nsamples);
+      if (f01HEDigis.stride() > 0 && f3HBDigis.stride() > 0)
+        assert(f01nsamples == f3nsamples);
 
       //compute work division      
-      int constexpr windowSize = 8;
       uint32_t  nchannels_per_block = configParameters.kprep1dChannelsPerBlock;
 
       auto const blocks_y = cms::alpakatools::divide_up_by(totalChannels , nchannels_per_block);
@@ -1165,7 +1184,8 @@ namespace hcal {
                           configParameters.sipmQTSShift,
                           configParameters.sipmQNTStoSum,
                           configParameters.firstSampleShift,
-                          configParameters.ts4Thresh
+                          configParameters.ts4Thresh,
+                          startingSample
       );
 
       //dim3 threadsPerBlock{windowSize, configParameters.kprep1dChannelsPerBlock};
