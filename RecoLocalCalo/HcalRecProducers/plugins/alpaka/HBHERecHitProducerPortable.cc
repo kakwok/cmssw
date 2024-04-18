@@ -9,7 +9,6 @@
 #include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalRecoParamWithPulseShapeDevice.h"
 #include "CondFormats/HcalObjects/interface/alpaka/HcalMahiPulseOffsetsDevice.h"
-#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
 #include "DataFormats/HcalRecHit/interface/alpaka/HcalRecHitDeviceCollection.h"
@@ -68,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         mahiConditionsToken_{esConsumes()},
         sipmCharacteristicsToken_{esConsumes()},
         recoParamsToken_{esConsumes()},
-        mahiPulseOffsetsToken_{esConsumes()} {
+        mahiPulseOffsetsToken_{esConsumes(ps.getParameter<edm::ESInputTag>("mahiPulseOffSets"))} {
     configParameters_.maxTimeSamples = ps.getParameter<uint32_t>("maxTimeSamples");
     configParameters_.kprep1dChannelsPerBlock = ps.getParameter<uint32_t>("kprep1dChannelsPerBlock");
     configParameters_.sipmQTSShift = ps.getParameter<int>("sipmQTSShift");
@@ -103,6 +102,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void HBHERecHitProducerPortable::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
     edm::ParameterSetDescription desc;
+    desc.add<edm::ESInputTag>("mahiPulseOffSets", edm::ESInputTag(""));
     desc.add<uint32_t>("maxTimeSamples", 10);
     desc.add<uint32_t>("kprep1dChannelsPerBlock", 32);
     desc.add<edm::InputTag>("digisLabelF01HE", edm::InputTag{"hcalRawToDigiGPU", "f01HEDigisGPU"});

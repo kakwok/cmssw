@@ -80,9 +80,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto hbheDigis = event.getHandle(hbheDigiToken_);
     const auto qie11Digis = event.getHandle(qie11DigiToken_);
 
-    if (hbheDigis->empty()) {
-      event.emplace(digisF5HBToken_);
-    } else {
+    //if (hbheDigis->empty()) {
+    //  event.emplace(digisF5HBToken_);
+    //} else {
       //Get the number of samples in data from the first digi
       auto const nsamples = (*hbheDigis)[0].size();
       //stride = nsamples * WORDS_PER_SAMPLE + Flavor::HEADER_WORDS;
@@ -97,6 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // set SoA_Scalar;
       hf5_.view().stride() = stride;
+      hf5_.view().size()   = hbheDigis->size() ;
 
       for (unsigned int i = 0; i < hbheDigis->size(); ++i) {
         auto const& hbhe = (*hbheDigis)[i];
@@ -120,7 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::memcpy(event.queue(), df5_.buffer(), hf5_.const_buffer());
 
       event.emplace(digisF5HBToken_, std::move(df5_));
-    }
+    //}
     if (qie11Digis->empty()) {
       event.emplace(digisF01HEToken_);
       event.emplace(digisF3HBToken_);

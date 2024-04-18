@@ -18,13 +18,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     HcalMahiPulseOffsetsESProducer(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       std::vector<int> offsets = iConfig.getParameter<std::vector<int>>("pulseOffsets");
 
-      auto product = std::make_unique<HcalMahiPulseOffsetsPortableHost>(offsets.size(), cms::alpakatools::host());
+      product = std::make_unique<HcalMahiPulseOffsetsPortableHost>(offsets.size(), cms::alpakatools::host());
 
       auto view = product->view();
 
       for (uint32_t i = 0; i < offsets.size(); i++) {
         view[i] = offsets[i];
       }
+      setWhatProduced(this);
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
