@@ -89,10 +89,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const stride = HBHEDataFrame::MAXSAMPLES * 0.5 + 1;
       auto const size = hbheDigis->size() * stride;  // number of channels * stride
 
-      // stack host memory in the queue
-      HostCollectionPhase0 hf5_(size, event.queue());
+      printf("hbheDigis->empty() = %i\n",hbheDigis->empty());
+      printf("hbheDigis->size() = %li\n",hbheDigis->size());
+      // stack host memory in the queue      
+      //HostCollectionPhase0 hf5_(size ? size : 1, event.queue());
+      HostCollectionPhase0 hf5_(size , event.queue());
 
       // device product
+      // DeviceCollectionPhase0 df5_(size? size: 1, alpaka::getDev(event.queue()));
       DeviceCollectionPhase0 df5_(size, alpaka::getDev(event.queue()));
 
       // set SoA_Scalar;
@@ -139,7 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             size_f1++;
           }
         } else if (digi.flavor() == 3) {
-          if (digi.detid().subdetId() != HcalBarrel) {
+          if (digi.detid().subdetId() == HcalBarrel) {
             size_f3++;
           }
         }
@@ -162,7 +166,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       unsigned int i_f1 = 0;  //counters for f1 digis
       unsigned int i_f3 = 0;  //counters for f3 digis
+      hf1_.view().size() = size_f1;
+      hf3_.view().size() = size_f3;
 
+      printf("f1 size = %i\n",size_f1);
+      printf("f3 size = %i\n",size_f3);
+      printf("qie11Digi->size() = %i\n",qie11Digis->size());
       for (unsigned int i = 0; i < qie11Digis->size(); i++) {
         auto const& digi = QIE11DataFrame{(*qie11Digis)[i]};
         assert(digi.samples() == qie11Digis->samples() && "collection nsamples must equal per digi samples");
@@ -191,8 +200,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
 
-      hf1_.view().size() = i_f1;
-      hf3_.view().size() = i_f3;
+      //for ( int i = 0; i < size_f1; i++) {
+      //    auto id = hf1_.view()[i].ids();
+      //    printf("i = %i, ids = %i, subdetId==Barrel = %i, subdetId==HcalEndcap = %i \n",i, id, DetId{id}.subdetId()==HcalBarrel, DetId{id}.subdetId()==HcalEndcap);
+
+      //}
+      //for ( int i = 0; i < size_f3; i++) {
+      //    auto id = hf3_.view()[i].ids();
+      //    printf("i = %i, ids = %i, subdetId==Barrel = %i, subdetId==HcalEndcap = %i \n",i, id, DetId{id}.subdetId()==HcalBarrel, DetId{id}.subdetId()==HcalEndcap);
+
+      //}
+
 
       alpaka::memcpy(event.queue(), df1_.buffer(), hf1_.const_buffer());
       alpaka::memcpy(event.queue(), df3_.buffer(), hf3_.const_buffer());

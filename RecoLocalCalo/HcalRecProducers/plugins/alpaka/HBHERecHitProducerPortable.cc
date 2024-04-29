@@ -164,6 +164,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                        mahiPulseOffsetsDev.const_view(),
                                        configParameters_);
     }
+    printf(" outputGPU size = %i \n", outputGPU_->metadata().size());
     //put into the event
     event.emplace(rechitsM0Token_, std::move(outputGPU_));
   }

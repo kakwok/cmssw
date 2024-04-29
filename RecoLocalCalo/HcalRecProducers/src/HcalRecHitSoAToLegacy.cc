@@ -57,9 +57,11 @@ void HcalRecHitSoAToLegacy::produce(edm::Event& event, edm::EventSetup const& se
     // get input from host SoA
     auto const &hcalRechitSoAView = event.get(recHitsM0TokenIn_).const_view();
 
-    recHitsLegacy->reserve(hcalRechitSoAView.size());
+    std::cout << " rechit SOA size =  "<<  hcalRechitSoAView.metadata().size() <<std::endl;
+    recHitsLegacy->reserve(hcalRechitSoAView.metadata().size());
 
-    for (uint32_t i = 0; i < hcalRechitSoAView.size(); i++) {
+    for (auto i = 0; i < hcalRechitSoAView.metadata().size(); i++) {
+      printf(" rechit input: did = %i, energy = %f, energyM0 = %f, chi2 = %f \n ",hcalRechitSoAView.did()[i], hcalRechitSoAView.energy()[i], hcalRechitSoAView.energyM0()[i], hcalRechitSoAView.chi2()[i]); 
       // skip bad channels
       if (hcalRechitSoAView.chi2()[i] < 0)
         continue;
@@ -72,6 +74,7 @@ void HcalRecHitSoAToLegacy::produce(edm::Event& event, edm::EventSetup const& se
       // update the legacy rechit with the Chi2 and M0 values
       recHitsLegacy->back().setChiSquared(hcalRechitSoAView.chi2()[i]);
       recHitsLegacy->back().setRawEnergy(hcalRechitSoAView.energyM0()[i]);
+
     }
 
     // put the legacy collection

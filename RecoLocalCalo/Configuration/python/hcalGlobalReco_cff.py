@@ -35,6 +35,14 @@ from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURec
 
 from RecoLocalCalo.HcalRecProducers.hcalRecHitSoAToLegacy_cfi import  hcalRecHitSoAToLegacy 
 (alpaka & run3_HB).toModify(hbhereco,
-    cuda = hcalRecHitSoAToLegacy.clone()
+    cpu = hcalRecHitSoAToLegacy.clone(
+        recHitsM0LabelIn = ("hbheRecHitProducerPortable","")
+    ),
+    cuda = hcalRecHitSoAToLegacy.clone(
+        recHitsM0LabelIn = ("hbheRecHitProducerPortable","")
+    )
 )
-
+hbherecoSerial = hcalRecHitSoAToLegacy.clone(
+    recHitsM0LabelIn = ("hbheRecHitProducerSerial","")
+)
+alpaka.toReplaceWith(hcalGlobalRecoTask, hcalGlobalRecoTask.copyAndAdd(hbherecoSerial))

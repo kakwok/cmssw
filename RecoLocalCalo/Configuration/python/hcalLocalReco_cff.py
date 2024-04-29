@@ -89,6 +89,7 @@ from RecoLocalCalo.HcalRecProducers.hcalCPURecHitsProducer_cfi import hcalCPURec
 #--- HCAL-only workflow for Run 2 on GPU
 from RecoLocalCalo.HcalRecProducers.hcalRecHitSoAToLegacy_cfi import  hcalRecHitSoAToLegacy 
 (alpaka & ~run3_HB).toModify(hbheprereco,
+    cpu = hcalRecHitSoAToLegacy.clone(),
     cuda = hcalRecHitSoAToLegacy.clone()
 )
 

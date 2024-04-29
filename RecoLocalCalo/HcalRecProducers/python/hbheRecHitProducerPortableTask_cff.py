@@ -22,6 +22,8 @@ hcalDigisPortable = _hcalDigisProducerPortable.clone(
     digisLabelF5HB  = "f5HBDigisGPU",
     digisLabelF3HB  = "f3HBDigisGPU"
 )
+from HeterogeneousCore.AlpakaCore.functions import *
+hcalDigisSerial = makeSerialClone(hcalDigisPortable)
 
 # run the HCAL local reconstruction (MAHI) on GPU
 from RecoLocalCalo.HcalRecProducers.hbheRecHitProducerPortable_cfi import hbheRecHitProducerPortable as _hbheRecHitProducerPortable
@@ -32,6 +34,7 @@ hbheRecHitProducerPortable = _hbheRecHitProducerPortable.clone(
     recHitsLabelM0HBHE = "",
     mahiPulseOffSets = "hcalMahiPulseOffsetsESProducer:"
 )
+hbheRecHitProducerSerial = makeSerialClone(hbheRecHitProducerPortable)
 
 # Tasks and Sequences
 hbheRecHitProducerPortableTask = cms.Task(
@@ -41,7 +44,9 @@ hbheRecHitProducerPortableTask = cms.Task(
     hcalRecoParamWithPulseShapeESProducer,
     hcalSiPMCharacteristicsESProducer,
     hcalDigisPortable,
-    hbheRecHitProducerPortable
+    hcalDigisSerial,
+    hbheRecHitProducerPortable,
+    hbheRecHitProducerSerial
 )
 
 hbheRecHitProducerPortableSequence = cms.Sequence(hbheRecHitProducerPortableTask)
