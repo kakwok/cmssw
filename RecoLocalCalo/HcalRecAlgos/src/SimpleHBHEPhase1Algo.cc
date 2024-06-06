@@ -70,8 +70,11 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     const double fc_ampl = info.chargeInWindow(ibeg, ibeg + nSamplesToAdd);
     const bool applyContainment = params ? params->correctForPhaseContainment() : corrFPC_;
     const float phasens = params ? params->correctionPhaseNS() : phaseNS_;
+    std::cout << "legacy m0:  " << channelId << " nSamplesToAdd= " << nSamplesToAdd << " fc_ampl= "<<fc_ampl <<" applyContainment = "<<applyContainment<<" phasens= "<<phasens;
     m0E = m0Energy(info, fc_ampl, applyContainment, phasens, nSamplesToAdd);
+    std::cout << " m0E  = " << m0E << std::endl;
     m0E *= hbminusCorrectionFactor(channelId, m0E, isData);
+    std::cout << " m0E after correction = " << m0E << std::endl;
     m0t = m0Time(info, fc_ampl, nSamplesToAdd);
   }
 
@@ -173,6 +176,7 @@ float SimpleHBHEPhase1Algo::m0Energy(const HBHEChannelInfo& info,
   int ibeg = static_cast<int>(info.soi()) + firstSampleShift_;
   if (ibeg < 0)
     ibeg = 0;
+  std::cout<<" begin = "<<ibeg;
   double e = info.energyInWindow(ibeg, ibeg + nSamplesToAdd);
 
   // Pulse containment correction
@@ -181,6 +185,7 @@ float SimpleHBHEPhase1Algo::m0Energy(const HBHEChannelInfo& info,
     if (applyContainmentCorrection)
       corrFactor = pulseCorr_.get(info.id(), nSamplesToAdd, phaseNs)->getCorrection(fc_ampl);
     e *= corrFactor;
+    std::cout<<" corrFactor = "<<corrFactor;
   }
 
   return e;

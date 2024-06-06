@@ -78,7 +78,7 @@ run3_HB.toModify(recHitTask,
 )
 run3_HB.toModify(hcalAlpakaComparisonTask,
     tagHBHE_ref = "hbherecoLegacy",
-    tagHBHE_target = "hbhereco"
+    tagHBHE_target = "hbherecoSerial"
 )
 
 _phase1_hcalOnlyOfflineSourceSequence = hcalOnlyOfflineSourceSequence.copy()

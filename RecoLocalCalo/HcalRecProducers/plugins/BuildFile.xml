@@ -20,6 +20,6 @@
   <use name="CondFormats/HcalObjects"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="1"/>
+  <flags ALPAKA_BACKENDS="serial"/>
   <flags EDM_PLUGIN="1"/>
 </library>

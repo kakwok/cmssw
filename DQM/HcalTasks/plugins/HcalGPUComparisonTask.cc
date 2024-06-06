@@ -42,6 +42,7 @@ private:
 
   //    GPU reco test verification
   hcaldqm::Container2D energyGPUvsCPU_subdet_;
+  hcaldqm::Container2D rawEnergyGPUvsCPU_subdet_;
   hcaldqm::Container1D energyDiffGPUCPU_subdet_;
   hcaldqm::ContainerProf2D energyDiffGPUCPU_depth_;
 };
@@ -71,6 +72,14 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fGPUenergy, true),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                     0);
+  rawEnergyGPUvsCPU_subdet_.initialize(_name,
+                                       "RawEnergyGPUvsCPU",
+                                       hcaldqm::hashfunctions::fSubdet,
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCPUenergy, true),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fGPUenergy, true),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                       0);
+
   energyDiffGPUCPU_subdet_.initialize(_name,
                                       "EnergyDiffGPUCPU",
                                       hcaldqm::hashfunctions::fSubdet,
@@ -86,6 +95,7 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
                                      0);
 
   energyGPUvsCPU_subdet_.book(ib, _emap, _subsystem);
+  rawEnergyGPUvsCPU_subdet_.book(ib, _emap, _subsystem);
   energyDiffGPUCPU_subdet_.book(ib, _emap, _subsystem);
   energyDiffGPUCPU_depth_.book(ib, _emap, _subsystem);
 }
@@ -106,6 +116,7 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
   _currentLS = lumiCache->currentLS;
 
   std::map<HcalDetId, double> mRecHitEnergy;
+  std::map<HcalDetId, HBHERecHit> mRecHit;
 
   for (HBHERecHitCollection::const_iterator it = chbhe_ref->begin(); it != chbhe_ref->end(); ++it) {
     double energy = it->energy();
@@ -113,11 +124,12 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
     //	Explicit check on the DetIds present in the Collection
     HcalDetId did = it->id();
 
-    if (mRecHitEnergy.find(did) == mRecHitEnergy.end())
+    if (mRecHitEnergy.find(did) == mRecHitEnergy.end()) {
       mRecHitEnergy.insert(std::make_pair(did, energy));
-    else
+      mRecHit.insert(std::make_pair(did, *it));
+    } else {
       edm::LogError("HcalGPUComparisonTask") << "Duplicate Rechit from the same HcalDetId";
-    ;
+    };
   }
 
   for (HBHERecHitCollection::const_iterator it = chbhe_target->begin(); it != chbhe_target->end(); ++it) {
@@ -126,8 +138,15 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
 
     if (mRecHitEnergy.find(did) != mRecHitEnergy.end()) {
       energyGPUvsCPU_subdet_.fill(did, mRecHitEnergy[did], energy);
+      rawEnergyGPUvsCPU_subdet_.fill(did, (mRecHit[did]).eraw(), it->eraw());
 
       if (mRecHitEnergy[did] != 0.) {
+        if (abs(energy - mRecHitEnergy[did]) >= 0.01) {
+          std::cout << "DIFF!!! Did = " << did << "  CPU energy =  " << mRecHitEnergy[did] << " GPU energy = " << energy
+                    << std::endl;
+          std::cout << "CPU Rechit " << (mRecHit[did]) << std::endl;
+          std::cout << "GPU Rechit " << (*it) << std::endl;
+        }
         energyDiffGPUCPU_subdet_.fill(did, (energy - mRecHitEnergy[did]) / mRecHitEnergy[did]);
         if (energy > 0.1)
           energyDiffGPUCPU_depth_.fill(did, (energy - mRecHitEnergy[did]) / mRecHitEnergy[did]);

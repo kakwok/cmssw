@@ -568,7 +568,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 alpaka::atomicAdd(
                     acc, &shrEnergyM0TotalAccum[lch], energym0_per_ts_gain0, alpaka::hierarchy::Threads{});
 
-#ifdef HCAL_MAHI_GPUDEBUG
+                std::cout<<"(group,channel,i_sample)=("<<group<<","<<lch<<","<<i_sample<<") "<< did << " hashedId = "<< hashedId<< " sample = "<< sample << "  rawCharge "<< rawCharge <<std::endl;
+//#ifdef HCAL_MAHI_GPUDEBUG
                 printf(
                     "id = %u sample = %d gch = %d hashedId = %u adc = %u capid = %u\n"
                     "   charge = %f rawCharge = %f dfc = %f pedestal = %f\n"
@@ -591,7 +592,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        endSample,
                        recoParam1,
                        recoParam2);
-#endif
+//#endif
                 //Find the max energy of lch channel and the corresponding TS
                 if (sampleWithinWindow >= static_cast<unsigned>(startSample) &&
                     sampleWithinWindow < static_cast<unsigned>(endSample)) {
@@ -698,20 +699,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   outputGPU.energyM0()[gch] = method0_energy;
                   outputGPU.timeM0()[gch] = time;
 
-#ifdef HCAL_MAHI_GPUDEBUG
-                  printf("tsTOT = %f tstrig = %f ts4Thresh = %f\n",
+                std::cout<<"(group,channel,i_sample)=("<<group<<","<<lch<<","<<i_sample<<") "<< did  <<std::endl;
+//#ifdef HCAL_MAHI_GPUDEBUG
+                  printf("tsTOT = %f  ts4Thresh = %f\n",
                          shrEnergyM0TotalAccum[lch],
-                         energym0_per_ts_gain0,
                          ts4Thresh);
-#endif
+//#endif
 
-#ifdef HCAL_MAHI_GPUDEBUG
+//#ifdef HCAL_MAHI_GPUDEBUG
                   printf(" method0_energy = %f max_sample = %d max_energy = %f time = %f\n",
                          method0_energy,
                          max_sample,
                          max_energy,
                          time);
-#endif
+//#endif
                 }
 #ifdef HCAL_MAHI_GPUDEBUG
                 printf(

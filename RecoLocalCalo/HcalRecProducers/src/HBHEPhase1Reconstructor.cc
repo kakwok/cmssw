@@ -21,6 +21,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -494,6 +495,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
     if (dropByZS && skipDroppedChannels)
       continue;
 
+
     // ADC decoding tool
     const HcalCoderDb coder(*properties.channelCoder, *properties.shape);
 
@@ -550,6 +552,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
       tsShift = determineIndexShift(soi, nRead, soiWanted, nTSToCopy);
     }
 
+    std::cout<<"[legacy digi]" << frame << std::endl;
     // Go over time slices and fill the samples
     for (int copyTS = 0; copyTS < nTSToCopy; ++copyTS) {
       const int inputTS = copyTS + tsShift;
@@ -574,6 +577,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
                              t);
       if (inputTS == soi)
         soiCapid = capid;
+      std::cout<<"[legacy digi] "<< cell << " sample = "<<copyTS<<" rawCharge = "<< rawCharge  <<" adc = "<< int(adc)<< " dfc = "<< dfc <<" pedestal= "<<pAndGain.pedestal(saveEffectivePeds) <<std::endl;
     }
 
     // Fill the overall channel info items

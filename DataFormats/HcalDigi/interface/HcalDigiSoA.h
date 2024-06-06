@@ -11,8 +11,8 @@
 
 namespace hcal {
 
-  using QIE11dataArray = edm::StdArray<uint16_t, QIE11DigiCollection::MAXSAMPLES>;
-  using QIE10dataArray = edm::StdArray<uint16_t, HBHEDataFrame::MAXSAMPLES>;
+  using QIE11dataArray = edm::StdArray<uint16_t, QIE11DigiCollection::MAXSAMPLES+1>;
+  using QIE10dataArray = edm::StdArray<uint16_t, HBHEDataFrame::MAXSAMPLES+1>;
 
   //using QIE11dataVector = Eigen::Matrix<uint16_t,  QIE11DigiCollection::MAXSAMPLES, 1>;
   //using QIE10dataVector = Eigen::Matrix<uint16_t,  HBHEDataFrame::MAXSAMPLES, 1>;

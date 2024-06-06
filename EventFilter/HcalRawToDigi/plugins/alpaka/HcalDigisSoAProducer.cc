@@ -1,7 +1,9 @@
+#include <iostream>
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiHostCollection.h"
 #include "DataFormats/HcalDigi/interface/alpaka/HcalDigiDeviceCollection.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -159,6 +161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const digi = QIE11DataFrame{qie11Digis[i]};
         assert(digi.samples() == qie11Digis.samples() && "collection nsamples must equal per digi samples");
 
+        //std::cout<< "[Alpaka digi input] " << digi << std::endl ;
         if (digi.flavor() == 0 or digi.flavor() == 1) {
           if (digi.detid().subdetId() != HcalEndcap)
             continue;

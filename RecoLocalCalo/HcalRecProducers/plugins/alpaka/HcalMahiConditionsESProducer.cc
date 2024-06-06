@@ -112,6 +112,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // convert pedestals
       auto const unitIsADC = pedestals.isADC();
 
+      std::cout<< "[MahiConditions] unitIsADC = "<< unitIsADC<<std::endl;
       // fill HB channels
       auto const recoParams_containers = recoParams.getAllContainers();
       auto const pedestals_containers = pedestals.getAllContainers();
@@ -164,7 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                : pedestals_barrel[i].getValue(2);
         vi.convertedPedestals()[3] = unitIsADC ? convertPed(pedestals_barrel[i].getValue(3), 3, qieCoder, qieShape)
                                                : pedestals_barrel[i].getValue(3);
-
+        std::cout<< " [MahiCondition] " << " i= "<< i << " converted ped = "<<vi.convertedPedestals()[0] <<" "<<vi.convertedPedestals()[1] <<" "<<vi.convertedPedestals()[2] <<" "<<vi.convertedPedestals()[3] <<" "<<std::endl;
         vi.convertedPedestalWidths()[0] =
             unitIsADC
                 ? convertPedWidths(
