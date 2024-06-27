@@ -6,6 +6,7 @@ typedef SimpleFlatTableProducer<reco::Candidate> SimpleCandidateFlatTableProduce
 typedef SimpleTypedExternalFlatTableProducer<reco::Candidate, reco::Candidate>
     SimpleCandidate2CandidateFlatTableProducer;
 
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 typedef EventSingletonSimpleFlatTableProducer<GenEventInfoProduct> SimpleGenEventFlatTableProducer;
 
@@ -20,6 +21,9 @@ typedef SimpleFlatTableProducer<reco::ForwardProton> SimpleProtonTrackFlatTableP
 
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 typedef SimpleFlatTableProducer<CTPPSLocalTrackLite> SimpleLocalTrackFlatTableProducer;
+
+#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
+typedef SimpleFlatTableProducer<reco::MuonRecHitCluster> SimpleMuonRecHitClusterFlatTableProducer;
 
 #include "DataFormats/Math/interface/Point3D.h"
 typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFlatTableProducer;
@@ -44,6 +48,12 @@ typedef BXVectorSimpleFlatTableProducer<l1t::Muon> SimpleTriggerL1MuonFlatTableP
 
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 typedef BXVectorSimpleFlatTableProducer<l1t::EtSum> SimpleTriggerL1EtSumFlatTableProducer;
+
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
+typedef BXVectorSimpleFlatTableProducer<l1t::MuonShower> SimpleTriggerL1MuonShowerFlatTableProducer;
+
+#include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
+typedef BXVectorSimpleFlatTableProducer<l1t::RegionalMuonShower> SimpleTriggerL1RegionalMuonShowerFlatTableProducer;
 
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 typedef SimpleFlatTableProducer<Run3ScoutingVertex> SimpleRun3ScoutingVertexFlatTableProducer;
@@ -90,3 +100,7 @@ DEFINE_FWK_MODULE(SimpleRun3ScoutingElectronFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleRun3ScoutingTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleVertexFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleCandidate2TrackTimeLifeInfoFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleMuonRecHitClusterFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleTriggerL1MuonShowerFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleTriggerL1RegionalMuonShowerFlatTableProducer);
+
