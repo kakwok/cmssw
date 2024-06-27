@@ -41,6 +41,9 @@ genParticleTable = simpleCandidateFlatTableProducer.clone(
          pdgId  = Var("pdgId", int, doc="PDG id"),
          status  = Var("status", int, doc="Particle status. 1=stable"),
          genPartIdxMother = Var("?numberOfMothers>0?motherRef(0).key():-1", "int16", doc="index of the mother particle"),
+         vx = Var("vx", float, doc="production vertex x"),
+         vy = Var("vy", float, doc="production vertex y"),
+         vz = Var("vz", float, doc="production vertex z"),
          statusFlags = (Var(
             "statusFlags().isLastCopyBeforeFSR()                  * 16384 +"
             "statusFlags().isLastCopy()                           * 8192  +"
