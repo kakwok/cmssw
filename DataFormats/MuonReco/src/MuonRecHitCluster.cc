@@ -11,7 +11,8 @@ reco::MuonRecHitCluster::MuonRecHitCluster(const math::RhoEtaPhiVectorF position
                                            const int nME41,
                                            const int nME42,
                                            const int nMB1,
-                                           const int nMB2)
+                                           const int nMB2,
+                                           const int nChambers)
     : position_(position),
       size_(size),
       nStation_(nStation),
@@ -23,4 +24,5 @@ reco::MuonRecHitCluster::MuonRecHitCluster(const math::RhoEtaPhiVectorF position
       nME41_(nME41),
       nME42_(nME42),
       nMB1_(nMB1),
-      nMB2_(nMB2) {}
+      nMB2_(nMB2),
+      nChambers_(nChambers) {}

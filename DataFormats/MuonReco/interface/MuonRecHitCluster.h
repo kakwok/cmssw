@@ -22,7 +22,8 @@ namespace reco {
                       const int nME41,
                       const int nME42,
                       const int nMB1,
-                      const int nMB2);
+                      const int nMB2,
+                      const int nChambers);
 
     //
     ~MuonRecHitCluster() = default;
@@ -35,6 +36,7 @@ namespace reco {
     float r() const { return position_.Rho(); }
     int size() const { return size_; }
     int nStation() const { return nStation_; }
+    int nChambers() const { return nChambers_; }
     float avgStation() const { return avgStation_; }
     int nMB1() const { return nMB1_; }
     int nMB2() const { return nMB2_; }
@@ -58,6 +60,7 @@ namespace reco {
     int nME42_;
     int nMB1_;
     int nMB2_;
+    int nChambers_;
   };
 
   typedef std::vector<MuonRecHitCluster> MuonRecHitClusterCollection;

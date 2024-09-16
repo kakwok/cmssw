@@ -61,6 +61,7 @@ private:
   const double rParam_;      // distance paramter
   const int nRechitMin_;     // min number of rechits
   const int nStationThres_;  // min number of rechits to count towards nStation
+  const int nChamberThres_;  // min number of rechits to count towards nChamber
 };
 
 template <typename Trait>
@@ -69,7 +70,8 @@ RechitClusterProducerT<Trait>::RechitClusterProducerT(const edm::ParameterSet& i
       inputToken_(consumes<typename Trait::InputType>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
       rParam_(iConfig.getParameter<double>("rParam")),
       nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
-      nStationThres_(iConfig.getParameter<int>("nStationThres")) {
+      nStationThres_(iConfig.getParameter<int>("nStationThres")), 
+      nChamberThres_(iConfig.getParameter<int>("nChamberThres")) {
   produces<RecHitClusterCollection>();
 }
 
@@ -155,7 +157,7 @@ void RechitClusterProducerT<Trait>::produce(edm::StreamID, edm::Event& ev, const
 
     math::RhoEtaPhiVectorF position(
         std::sqrt(jetX * jetX + jetY * jetY), etaFromXYZ(jetX, jetY, jetZ), std::atan2(jetY, jetX));
-    Trait::emplace_back(clusters.get(), position, nStation, avgStation, rechits);
+    Trait::emplace_back(clusters.get(), position, nStation, avgStation, rechits,nChamberThres_);
   }
   ev.put(std::move(clusters));
 }
@@ -167,6 +169,7 @@ void RechitClusterProducerT<Trait>::fillDescriptions(edm::ConfigurationDescripti
   desc.add<int>("nRechitMin", 50);
   desc.add<double>("rParam", 0.4);
   desc.add<int>("nStationThres", 10);
+  desc.add<int>("nChamberThres", 10);
   desc.add<edm::InputTag>("recHitLabel", edm::InputTag(Trait::recHitLabel()));
   descriptions.add(Trait::producerName(), desc);
 }
@@ -188,7 +191,8 @@ struct DTRecHitTrait {
                            math::RhoEtaPhiVectorF const& position,
                            int nStation,
                            float avgStation,
-                           RecHitRefVector const& rechits) {
+                           RecHitRefVector const& rechits,
+                           int nChamberThres) {
     // compute nMB1, nMB2
     int nMB1 = 0;
     int nMB2 = 0;
@@ -201,7 +205,7 @@ struct DTRecHitTrait {
         nMB2++;
     }
     //set time, timespread, nME11,nME12 to 0
-    reco::MuonRecHitCluster cls(position, rechits.size(), nStation, avgStation, 0.0, 0.0, 0, 0, 0, 0, nMB1, nMB2);
+    reco::MuonRecHitCluster cls(position, rechits.size(), nStation, avgStation, 0.0, 0.0, 0, 0, 0, 0, nMB1, nMB2,0);
     clusters->emplace_back(cls);
   }
 };
@@ -220,16 +224,22 @@ struct CSCRecHitTrait {
                            math::RhoEtaPhiVectorF const& position,
                            int nStation,
                            float avgStation,
-                           RecHitRefVector const& rechits) {
+                           RecHitRefVector const& rechits,
+                           int nChamberThres) {
     int nME11 = 0;
     int nME12 = 0;
     int nME41 = 0;
     int nME42 = 0;
+    int nChambers = 0;
     float timeSpread = 0.0;
     float time = 0.0;
     float time_strip = 0.0;  // for timeSpread calculation
+    std::set<std::string> unique_ids;
+    std::map<std::string, int> chamber_count_map;
     for (auto const& rechit : rechits) {
       CSCDetId cscdetid = rechit->cscDetId();
+      unique_ids.insert(cscdetid.chamberName());
+      chamber_count_map[cscdetid.chamberName()]++;
       int stationRing = (CSCDetId::station(cscdetid) * 10 + CSCDetId::ring(cscdetid));
       if (CSCDetId::ring(cscdetid) == 4)
         stationRing = (CSCDetId::station(cscdetid) * 10 + 1);  // ME1/a has ring==4
@@ -244,6 +254,15 @@ struct CSCRecHitTrait {
       time += (rechit->tpeak() + rechit->wireTime());
       time_strip += rechit->tpeak();
     }
+    std::cout<<"Unique chambers:";
+    for (auto const& chambers : unique_ids) {
+        std::cout<<chambers<<"  rechits = "<<chamber_count_map[chambers]<<std::endl;
+    }
+    for (auto const& [chamber, count] : chamber_count_map) {
+      if (count >= nChamberThres) {
+        nChambers++;
+      }
+    }
     float invN = 1.f / rechits.size();
     time = (time / 2.f) * invN;
     time_strip = time_strip * invN;
@@ -256,7 +275,7 @@ struct CSCRecHitTrait {
 
     //set nMB1,nMB2 to 0
     reco::MuonRecHitCluster cls(
-        position, rechits.size(), nStation, avgStation, time, timeSpread, nME11, nME12, nME41, nME42, 0, 0);
+        position, rechits.size(), nStation, avgStation, time, timeSpread, nME11, nME12, nME41, nME42, 0, 0, nChambers);
     clusters->emplace_back(cls);
   }
 };
