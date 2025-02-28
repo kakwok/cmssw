@@ -45,6 +45,9 @@ typedef EventSingletonSimpleFlatTableProducer<OnlineLuminosityRecord> SimpleOnli
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 typedef EventSingletonSimpleFlatTableProducer<reco::BeamSpot> SimpleBeamspotFlatTableProducer;
 
+#include "DataFormats/MuonReco/interface/MuonRecHitCluster.h"
+typedef SimpleFlatTableProducer<reco::MuonRecHitCluster> SimpleMuonRecHitClusterFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleTrackFlatTableProducer);
@@ -61,3 +64,4 @@ DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleOnlineLuminosityFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleMuonRecHitClusterFlatTableProducer);
