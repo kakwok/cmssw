@@ -285,6 +285,9 @@ steps['l1DPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@L1DPG', '-n': '100'}
 steps['TTbar_13p6_Summer24_AOD_140X'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24DRPremix-140X_mcRun3_2024_realistic_v26-v2/AODSIM')}
 
+steps['TTbar_13p6_Summer24_AOD_142X'] = {'INPUT': InputInfo(
+    location='STD', dataSet='/TTToLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM')}
+
 steps['JetMET1_Run2024H_AOD_140X'] = {'INPUT': InputInfo(
     location='STD', ls={385836: [[72, 166]]}, dataSet='/JetMET1/Run2024H-PromptReco-v1/AOD')}
 
@@ -292,12 +295,12 @@ steps['NANO_mc_Summer24_reMINI'] = merge([{'--era': 'Run3_2024', '--conditions':
 
 steps['NANO_data_2024_reMINI'] = merge([{'--era': 'Run3_2024', '--conditions': 'auto:run3_data'}, _NANO_data])
 
-
 ################################################################
 # Run3, 15_0_X input (for 2025 data-taking)
 # temporarily using the Summer24 samples
 steps['TTbar_13p6_Summer24_MINIAOD_150X'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2/MINIAODSIM')}
+
 
 steps['NANO_mc15.0'] = merge([{'--era': 'Run3_2025', '--conditions': 'auto:phase1_2025_realistic'}, _NANO_mc])
 
@@ -311,9 +314,6 @@ steps['EGMNANO_mc15.0'] = merge([{'-s': 'NANO:@EGM,DQM:@nanoAODDQM', '-n': '1000
                                  steps['NANO_mc15.0']])
 
 steps['BTVNANO_mc15.0'] = merge([{'-s': 'NANO:@BTV,DQM:@nanoAODDQM', '-n': '1000'},
-                                 steps['NANO_mc15.0']])
-
-steps['EXONANO_mc15.0'] = merge([{'-s': 'NANO:@EXO,DQM:@nanoAODDQM', '-n': '1000'},
                                  steps['NANO_mc15.0']])
 
 steps['lepTrackInfoNANO_mc15.0'] = merge([{'-s': 'NANO:@LepTrackInfo,DQM:@nanoAODDQM', '-n': '1000'},
@@ -337,11 +337,16 @@ lumis_Run2025C = {392175: [[95, 542]]}
 steps['JetMET1_Run2025C_MINIAOD_150X'] = {'INPUT': InputInfo(
     location='STD', ls=lumis_Run2025C, dataSet='/JetMET1/Run2025C-PromptReco-v1/MINIAOD')}
 
+lumis_Run2025C_v2 = {393125: [[100, 200]]}
+
+steps['Muon1_Run2025C_AOD_150X'] = {'INPUT': InputInfo(
+    location='STD', ls=lumis_Run2025C_v2, dataSet='/Muon1/Run2025C-PromptReco-v2/AOD')}
+
 steps['ScoutingPFRun3_Run2025C_HLTSCOUT_150X'] = {'INPUT': InputInfo(location='STD', ls=lumis_Run2025C,
                                                          dataSet='/ScoutingPFRun3/Run2025C-v1/HLTSCOUT')}
 
 steps['ScoutingPFMonitor_Run2025C_MINIAOD_150X'] = {'INPUT': InputInfo(
-    location='STD', ls=lumis_Run2025C, dataSet='/ScoutingPFMonitor/Run2025C-PromptReco-v1/MINIAOD')}
+    location='STD', ls=lumis_Run2025C_v2, dataSet='/ScoutingPFMonitor/Run2025C-PromptReco-v1/MINIAOD')}
 
 steps['NANO_data15.0'] = merge([{'--era': 'Run3_2025', '--conditions': 'auto:run3_data_prompt'}, _NANO_data])
 
@@ -360,7 +365,7 @@ steps['EGMNANO_data15.0'] = merge([{'-s': 'NANO:@EGM,DQM:@nanoAODDQM', '-n': '10
 steps['BTVNANO_data15.0'] = merge([{'-s': 'NANO:@BTV,DQM:@nanoAODDQM', '-n': '1000'},
                                    steps['NANO_data15.0']])
 
-steps['EXONANO_data15.0'] = merge([{'-s': 'NANO:@EXO,DQM:@nanoAODDQM', '-n': '1000'},
+steps['EXONANO_data15.0'] = merge([{'-s': 'PAT,NANO:@EXO', '-n': '1000'},
                                    steps['NANO_data15.0']])
 
 steps['lepTrackInfoNANO_data15.0'] = merge([{'-s': 'NANO:@LepTrackInfo,DQM:@nanoAODDQM', '-n': '1000'},
@@ -508,7 +513,6 @@ workflows[_wfn()] = ['lepTrackInfoNANOmc150X', ['TTbar_13p6_Summer24_MINIAOD_150
 workflows[_wfn()] = ['ScoutingNANOmc150X', ['TTbar_13p6_Summer24_MINIAOD_150X', 'scoutingNANO_mc15.0']]
 workflows[_wfn()] = ['ScoutingNANOwithPromptmc150X', ['TTbar_13p6_Summer24_MINIAOD_150X', 'scoutingNANO_withPrompt_mc15.0']]
 workflows[_wfn()] = ['BPHNANOmc150X', ['TTbar_13p6_Summer24_MINIAOD_150X', 'BPHNANO_mc15.0']]
-workflows[_wfn()] = ['EXONANOmc150X', ['TTbar_13p6_Summer24_MINIAOD_150X', 'EXONANO_mc15.0']]
 
 # POG/PAG custom NANOs, data
 _wfn.subnext()
@@ -521,7 +525,7 @@ workflows[_wfn()] = ['lepTrackInfoNANOdata150Xrun3', ['JetMET1_Run2025C_MINIAOD_
 workflows[_wfn()] = ['ScoutingNANOdata150Xrun3', ['ScoutingPFRun3_Run2025C_HLTSCOUT_150X', 'scoutingNANO_data15.0']]
 workflows[_wfn()] = ['ScoutingNANOwithPromptdata150Xrun3', ['ScoutingPFMonitor_Run2025C_MINIAOD_150X', 'scoutingNANO_withPrompt_data15.0']]  # noqa
 workflows[_wfn()] = ['BPHNANOdata150Xrun3', ['JetMET1_Run2025C_MINIAOD_150X', 'BPHNANO_data15.0']]
-workflows[_wfn()] = ['EXONANOdata150Xrun3', ['JetMET1_Run2025C_MINIAOD_150X', 'EXONANO_data15.0']]
+workflows[_wfn()] = ['EXONANOdata150Xrun3', ['Muon1_Run2025C_AOD_150X', 'EXONANO_data15.0']]
 
 # DPG custom NANOs, data
 _wfn.subnext()
