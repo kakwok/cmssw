@@ -285,9 +285,6 @@ steps['l1DPGNANO_data14.0'] = merge([{'-s': 'RAW2DIGI,NANO:@L1DPG', '-n': '100'}
 steps['TTbar_13p6_Summer24_AOD_140X'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/RunIII2024Summer24DRPremix-140X_mcRun3_2024_realistic_v26-v2/AODSIM')}
 
-steps['TTbar_13p6_Summer24_AOD_142X'] = {'INPUT': InputInfo(
-    location='STD', dataSet='/TTToLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Winter25Reco-142X_mcRun3_2025_realistic_v7-v2/AODSIM')}
-
 steps['JetMET1_Run2024H_AOD_140X'] = {'INPUT': InputInfo(
     location='STD', ls={385836: [[72, 166]]}, dataSet='/JetMET1/Run2024H-PromptReco-v1/AOD')}
 
@@ -346,7 +343,7 @@ steps['ScoutingPFRun3_Run2025C_HLTSCOUT_150X'] = {'INPUT': InputInfo(location='S
                                                          dataSet='/ScoutingPFRun3/Run2025C-v1/HLTSCOUT')}
 
 steps['ScoutingPFMonitor_Run2025C_MINIAOD_150X'] = {'INPUT': InputInfo(
-    location='STD', ls=lumis_Run2025C_v2, dataSet='/ScoutingPFMonitor/Run2025C-PromptReco-v1/MINIAOD')}
+    location='STD', ls=lumis_Run2025C, dataSet='/ScoutingPFMonitor/Run2025C-PromptReco-v1/MINIAOD')}
 
 steps['NANO_data15.0'] = merge([{'--era': 'Run3_2025', '--conditions': 'auto:run3_data_prompt'}, _NANO_data])
 
