@@ -53,7 +53,7 @@ public:
   const TritonService* service() const;
   const TritonService* localService() const;
   virtual void connectToServer(const std::string& url);
-  virtual void updateServer(std::string serverName);
+  virtual void updateServer(const std::string& serverName);
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
