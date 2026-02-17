@@ -52,6 +52,7 @@ public:
   bool isLocal() const { return isLocal_; }
   const TritonService* service() const;
   const TritonService* localService() const;
+  void connectToServer(const std::string& url);
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
