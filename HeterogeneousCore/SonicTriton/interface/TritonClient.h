@@ -52,6 +52,8 @@ public:
   bool isLocal() const { return isLocal_; }
   const TritonService* service() const;
   const TritonService* localService() const;
+  std::string modelName() const { return options_[0].model_name_; }
+  std::string serverName() const { return serverName_; }
   virtual void connectToServer(const std::string& url);
   virtual void updateServer(const std::string& serverName);
 
@@ -88,6 +90,7 @@ protected:
   bool useSharedMemory_;
   TritonServerType serverType_;
   bool isLocal_;
+  std::string serverName_;
   grpc_compression_algorithm compressionAlgo_;
   triton::client::Headers headers_;
 
