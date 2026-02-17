@@ -53,12 +53,15 @@ public:
   const TritonService* service() const;
   const TritonService* localService() const;
   virtual void connectToServer(const std::string& url);
-  void updateServer(std::string serverName);
+  virtual void updateServer(std::string serverName);
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 protected:
+  // Protected default constructor for unit testing (no framework services)
+  TritonClient();
+
   //helpers
   bool noOuterDim() const { return noOuterDim_; }
   unsigned outerDim() const { return outerDim_; }
