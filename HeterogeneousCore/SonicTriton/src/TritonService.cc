@@ -256,8 +256,8 @@ void TritonService::updateServerHealth(const std::string& modelName) {
       std::unique_ptr<tc::InferenceServerGrpcClient> client;
       TRITON_THROW_IF_ERROR(
           tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
-          "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")",
-          false);
+          "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")"
+          );
 
       bool live = false, ready = false;
       client->IsServerLive(&live);
