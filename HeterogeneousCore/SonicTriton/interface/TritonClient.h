@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #ifndef HeterogeneousCore_SonicTriton_TritonClient
 #define HeterogeneousCore_SonicTriton_TritonClient
 
@@ -53,7 +52,8 @@ public:
   bool isLocal() const { return isLocal_; }
   const TritonService* service() const;
   const TritonService* localService() const;
-  void connectToServer(const std::string& url);
+  virtual void connectToServer(const std::string& url);
+  void updateServer(std::string serverName);
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
@@ -69,7 +69,6 @@ protected:
   bool handle_exception(F&& call);
 
   void reportServerSideStats(const ServerSideStats& stats) const;
-  void updateServer(std::string serverName);
   ServerSideStats summarizeServerStats(const inference::ModelStatistics& start_status,
                                        const inference::ModelStatistics& end_status) const;
 
