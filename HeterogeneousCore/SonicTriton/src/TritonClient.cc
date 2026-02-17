@@ -605,7 +605,7 @@ void TritonClient::updateServer(const std::string& serverName) {
   TRITON_THROW_IF_ERROR(
       tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
       "TritonClient(): unable to create inference context",
-      isLocal_);
+      localService());
 }
 
 //for fillDescriptions
@@ -640,7 +640,7 @@ void TritonClient::connectToServer(const std::string& url) {
   // Connect to the server
   TRITON_THROW_IF_ERROR(triton::client::InferenceServerGrpcClient::Create(&client_, url, false, useSsl, sslOptions),
                         "TritonClient::connectToServer(): unable to create inference context",
-                        false  // isLocal is false
+                        localService()  // isLocal is false
   );
 }
 
