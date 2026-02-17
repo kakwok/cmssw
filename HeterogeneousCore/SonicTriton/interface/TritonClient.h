@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef HeterogeneousCore_SonicTriton_TritonClient
 #define HeterogeneousCore_SonicTriton_TritonClient
 

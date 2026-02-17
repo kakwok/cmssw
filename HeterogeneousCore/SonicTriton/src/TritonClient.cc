@@ -625,3 +625,7 @@ void TritonClient::connectToServer(const std::string& url) {
       false // isLocal is false
   );
 }
+
+//constructor for testing
+TritonClient::TritonClient(bool /*is_testing*/) : SonicClient(edm::ParameterSet(), "TritonClient_test", "TritonClient") {}
+
