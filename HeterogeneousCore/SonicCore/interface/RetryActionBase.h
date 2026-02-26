@@ -19,7 +19,8 @@ public:
   virtual void start() = 0;  // Pure virtual function for execution logic for initialization
 
 protected:
-  void eval();  // interface for calling evaluate in client
+  void eval();                // interface for calling evaluate in client
+  void finish(bool success);  // interface for calling finish directly in client
 
 protected:
   SonicClientBase* client_;

@@ -250,18 +250,22 @@ const std::pair<const std::string, TritonService::Server>& TritonService::server
   return *serverPair;
 }
 
-void TritonService::updateServerHealth(const std::string& modelName) {
+void TritonService::updateServerHealth(const std::string& modelName) const {
   for (auto& [serverName, server] : servers_) {
+    edm::LogInfo("TritonService") << "Updating server health for server = " << serverName;
     try {
       std::unique_ptr<tc::InferenceServerGrpcClient> client;
       TRITON_THROW_IF_ERROR(
           tc::InferenceServerGrpcClient::Create(&client, server.url, false, server.useSsl, server.sslOptions),
-          "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")"
-          );
+          "TritonService(): unable to create inference context for " + serverName + " (" + server.url + ")");
 
       bool live = false, ready = false;
-      client->IsServerLive(&live);
-      client->IsServerReady(&ready);
+      TRITON_THROW_IF_ERROR(client->IsServerLive(&live),
+                            "TritonService(): unable to query IsServerLive " + serverName + " (" + server.url + ")");
+      TRITON_THROW_IF_ERROR(client->IsServerReady(&ready),
+                            "TritonService(): unable to query IsServerReady " + serverName + " (" + server.url + ")");
+
+      edm::LogInfo("TritonService") << serverName << " : live = " << live << " ready = " << ready;
 
       inference::ModelStatisticsResponse stats;
       if (!modelName.empty()) {
@@ -318,27 +322,37 @@ void TritonService::updateServerHealth(const std::string& modelName) {
   }
 }
 
-std::optional<std::string> TritonService::getBestServer(const std::string& modelName, const std::string& IgnoreServer) {
+std::optional<std::string> TritonService::getBestServer(const std::string& modelName,
+                                                        const std::string& IgnoreServer) const {
   std::optional<std::string> bestServerName;
   ServerHealth bestHealth;
 
+  edm::LogInfo("TritonService") << "Getting best server";
   // get fresh ServerHealth statistics
   updateServerHealth(modelName);
 
   for (auto& [serverName, server] : servers_) {
-    if (serverName == IgnoreServer)
+    if (serverName == IgnoreServer) {
+      edm::LogInfo("TritonService") << serverName << " is ignored";
       continue;  // skip ignored server
-    if (server.models.find(modelName) == server.models.end())
+    }
+    if (server.models.find(modelName) == server.models.end()) {
+      edm::LogInfo("TritonService") << serverName << " is skipped because it does not have " << modelName;
       continue;  // server doesn't have model
+    }
 
     tbb::concurrent_hash_map<std::string, ServerHealth>::const_accessor acc;
-    if (!serversHealth_.find(acc, serverName))
+    if (!serversHealth_.find(acc, serverName)) {
+      edm::LogInfo("TritonService") << serverName << " is skipped because it does not have health info";
       continue;  // no health info
+    }
 
     const ServerHealth& health = acc->second;
 
-    if (!health.live || !health.ready)
+    if (!health.live || !health.ready) {
+      edm::LogInfo("TritonService") << serverName << " is skipped because is not live or ready";
       continue;  // skip unhealthy
+    }
 
     // Select server according to rules:
     // 1) lowest failureCount

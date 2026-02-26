@@ -12,4 +12,12 @@ void RetryActionBase::eval() {
   }
 }
 
+void RetryActionBase::finish(bool success) {
+  if (client_) {
+    client_->finish(success);
+  } else {
+    edm::LogError("RetryActionBase") << "Client pointer is null, cannot call finish.";
+  }
+}
+
 EDM_REGISTER_PLUGINFACTORY(RetryActionFactory, "RetryActionFactory");

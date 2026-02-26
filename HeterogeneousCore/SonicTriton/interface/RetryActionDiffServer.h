@@ -24,6 +24,9 @@ public:
 
   void retry() override;
   void start() override;
+
+private:
+  unsigned tries_;
 };
 
 #endif

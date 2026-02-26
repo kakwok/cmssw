@@ -128,10 +128,10 @@ public:
                                                                         const std::string& preferred = "") const;
 
   // update health stats of all servers
-  void updateServerHealth(const std::string& modelName = "");
+  void updateServerHealth(const std::string& modelName = "") const;
 
   // return the best server for retry, ignore the current server
-  std::optional<std::string> getBestServer(const std::string& modelName, const std::string& IgnoreServer = "");
+  std::optional<std::string> getBestServer(const std::string& modelName, const std::string& IgnoreServer = "") const;
 
   // helper functions to get server statistics?
   //  - getServerSideStatus()

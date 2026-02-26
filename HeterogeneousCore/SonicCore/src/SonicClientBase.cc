@@ -72,55 +72,48 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     for (const auto& action : retryActions_) {
       if (action->shouldRetry()) {
         edm::LogInfo("SonicClientBase") << "Calling retry()";
+        // retry() must trigger eval() or finish()
         action->retry();
-
-        // After calling retry(), recheck if this action should still be tried
-        if (!action->shouldRetry()) {
-          edm::LogInfo("SonicClientBase") << "Retry action exhausted after retry()";
-          // check the next action for retry()
-          continue;
-        } else {
-          // client->evaluate() will be called by a valid action->retry(); return and wait for another finish()
-          return;
-        }
+        // client->evaluate() will be called by a valid action->retry(); return and wait for another finish()
+        return;
       }
     }
     //prepare an exception if no more retry actions left
-    edm::LogInfo("SonicClientBase") << "SonicCallFailed: call failed, no retry actions available after "
-                                    << totalTries_ << " tries.";
+    edm::LogInfo("SonicClientBase") << "SonicCallFailed: call failed, no retry actions available after " << totalTries_
+                                    << " tries.";
     edm::Exception ex(edm::errors::ExternalFailure);
     ex << "SonicCallFailed: call failed, no retry actions available after " << totalTries_ << " tries.";
     eptr = make_exception_ptr(ex);
-    }
-    if (holder_) {
-      holder_->doneWaiting(eptr);
-      holder_.reset();
-    } else if (eptr)
-      std::rethrow_exception(eptr);
-
-    //reset client data now (usually done at end of produce())
-    if (eptr)
-      reset();
   }
+  if (holder_) {
+    holder_->doneWaiting(eptr);
+    holder_.reset();
+  } else if (eptr)
+    std::rethrow_exception(eptr);
 
-  void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription & desc, bool allowRetry) {
-    //restrict allowed values
-    desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
-                 edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
-    if (allowRetry) {
-      // Defines the structure of each entry in the VPSet
-      edm::ParameterSetDescription retryDesc;
-      retryDesc.add<std::string>("retryType", "RetrySameServerAction");
-      retryDesc.addUntracked<unsigned>("allowedTries", 0);
+  //reset client data now (usually done at end of produce())
+  if (eptr)
+    reset();
+}
 
-      // Define a default retry action
-      edm::ParameterSet defaultRetry;
-      defaultRetry.addParameter<std::string>("retryType", "RetrySameServerAction");
-      defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
+void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
+  //restrict allowed values
+  desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
+               edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
+  if (allowRetry) {
+    // Defines the structure of each entry in the VPSet
+    edm::ParameterSetDescription retryDesc;
+    retryDesc.add<std::string>("retryType", "RetrySameServerAction");
+    retryDesc.addUntracked<unsigned>("allowedTries", 0);
 
-      // Add the VPSet with the default retry action
-      desc.addVPSet("Retry", retryDesc, {defaultRetry});
-    }
-    desc.add("sonicClientBase", desc);
-    desc.addUntracked<bool>("verbose", false);
+    // Define a default retry action
+    edm::ParameterSet defaultRetry;
+    defaultRetry.addParameter<std::string>("retryType", "RetrySameServerAction");
+    defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
+
+    // Add the VPSet with the default retry action
+    desc.addVPSet("Retry", retryDesc, {defaultRetry});
   }
+  desc.add("sonicClientBase", desc);
+  desc.addUntracked<bool>("verbose", false);
+}

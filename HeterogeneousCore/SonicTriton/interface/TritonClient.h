@@ -95,6 +95,9 @@ protected:
   triton::client::Headers headers_;
 
   std::unique_ptr<triton::client::InferenceServerGrpcClient> client_;
+  //FIXME: This is a temporary workaround for RetryDiffServer to avoid deleting the current thread
+  //when we connect to a different server via tc::InferenceServerGrpcClient::Create
+  std::vector<std::unique_ptr<triton::client::InferenceServerGrpcClient>> oldClients_;
   //stores timeout, model name and version
   std::vector<triton::client::InferOptions> options_;
   edm::ServiceToken token_;

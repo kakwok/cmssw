@@ -424,6 +424,7 @@ void TritonClient::evaluate() {
       element.second.prepare();
     }
   });
+  //edm::LogInfo("TritonClient") << "evaluate() return 1";
   if (!success)
     return;
 
@@ -433,6 +434,7 @@ void TritonClient::evaluate() {
     if (verbose())
       start_status = getServerSideStatus();
   });
+  //edm::LogInfo("TritonClient") << "evaluate() return 2";
   if (!success)
     return;
 
@@ -479,9 +481,11 @@ void TritonClient::evaluate() {
                             "evaluate(): unable to launch async run",
                             localService());
     });
+    //edm::LogInfo("TritonClient") << "evaluate() return 3";
     if (!success)
       return;
   } else {
+    //edm::LogInfo("TritonClient") << "evaluate() return 4";
     //blocking call
     std::vector<tc::InferResult*> resultsTmp;
     success = handle_exception([&]() {
@@ -584,7 +588,7 @@ inference::ModelStatistics TritonClient::getServerSideStatus() const {
 
 void TritonClient::updateServer(const std::string& serverName) {
   //get appropriate server for this model
-  edm::Service<TritonService> ts;
+  auto ts = service();
 
   const auto& serverMap = ts->serverInfo(options_[0].model_name_, serverName);
 
@@ -600,6 +604,14 @@ void TritonClient::updateServer(const std::string& serverName) {
   if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
   isLocal_ = serverType_ == TritonServerType::LocalCPU or serverType_ == TritonServerType::LocalGPU;
+
+  //FIXME: This is a temporary workaround for RetryDiffServer to avoid deleting the current thread
+  //when we connect to a different server via tc::InferenceServerGrpcClient::Create
+  // Move the old client to the oldClients_ vector
+  if (client_) {
+    oldClients_.push_back(std::move(client_));
+    // client_ is now nullptr after the move
+  }
 
   //connect to the server
   TRITON_THROW_IF_ERROR(
@@ -639,9 +651,7 @@ void TritonClient::connectToServer(const std::string& url) {
 
   // Connect to the server
   TRITON_THROW_IF_ERROR(triton::client::InferenceServerGrpcClient::Create(&client_, url, false, useSsl, sslOptions),
-                        "TritonClient::connectToServer(): unable to create inference context",
-                        localService()  // isLocal is false
-  );
+                        "TritonClient::connectToServer(): unable to create inference context");
 }
 
 //constructor for testing

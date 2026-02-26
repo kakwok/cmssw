@@ -7,30 +7,36 @@
 RetryActionDiffServer::RetryActionDiffServer(const edm::ParameterSet& conf, SonicClientBase* client)
     : RetryActionBase(conf, client) {}
 
-void RetryActionDiffServer::start() { this->shouldRetry_ = true; }
+void RetryActionDiffServer::start() {
+  this->shouldRetry_ = true;
+  tries_ = 0;
+}
 
 void RetryActionDiffServer::retry() {
-  if (!this->shouldRetry_) {
-    this->shouldRetry_ = false;
-    edm::LogInfo("RetryActionDiffServer") << "Retry not armed; skipping.";
-    return;
+  ++tries_;
+  if (tries_ >= 1) {
+    shouldRetry_ = false;  // Flip flag when max retries are reached. Allow 1 try for now.
+    edm::LogInfo("RetryDiffServerAction") << "Max retry attempts reached. No further retries.";
   }
-
   try {
     auto* tritonClient = static_cast<TritonClient*>(client_);
-    edm::LogInfo("RetryActionDiffServer") << "Attempting retry by switching to fallback server";
-    // TODO: Get the server name from TritonService, use fallback for testing
-    edm::Service<TritonService> ts;
+    edm::LogInfo("RetryActionDiffServer") << "Asking for a different server from TritonService";
+    auto ts = tritonClient->service();
 
     // get best server, ignoring the current server
-    auto bestServerName = ts->getBestServer(tritonClient->modelName(),tritonClient->serverName());
+    auto bestServerName = ts->getBestServer(tritonClient->modelName(), tritonClient->serverName());
 
     if (bestServerName) {
+      edm::LogInfo("RetryActionDiffServer") << "Got best server from service ";
       tritonClient->updateServer(*bestServerName);
+      edm::LogInfo("RetryActionDiffServer") << "eval() with new server";
       eval();
+      return;
     } else {
-      edm::LogWarning("RetryActionDiffServer") 
-          << "No alternative server found for model " << tritonClient->modelName();
+      edm::LogWarning("RetryActionDiffServer")
+          << "No alternative server found for model " << tritonClient->modelName() << ". Now call client->finish()";
+      finish(false);
+      return;
     }
   } catch (TritonException& e) {
     e.convertToWarning();
@@ -39,7 +45,6 @@ void RetryActionDiffServer::retry() {
   } catch (...) {
     edm::LogError("RetryActionDiffServer: UnknownFailure") << "An unknown exception was thrown";
   }
-  this->shouldRetry_ = false;
 }
 
 DEFINE_RETRY_ACTION(RetryActionDiffServer);
