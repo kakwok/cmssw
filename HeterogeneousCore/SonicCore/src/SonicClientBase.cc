@@ -74,7 +74,7 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
         edm::LogInfo("SonicClientBase") << "Calling retry()";
         // retry() must trigger eval() or finish()
         action->retry();
-        // client->evaluate() will be called by a valid action->retry(); return and wait for another finish()
+        // return because another finish() was already called inside client->evaluate()
         return;
       }
     }

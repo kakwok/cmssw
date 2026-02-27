@@ -605,9 +605,9 @@ void TritonClient::updateServer(const std::string& serverName) {
     setMode(SonicMode::Sync);
   isLocal_ = serverType_ == TritonServerType::LocalCPU or serverType_ == TritonServerType::LocalGPU;
 
-  //FIXME: This is a temporary workaround for RetryDiffServer to avoid deleting the current thread
-  //when we connect to a different server via tc::InferenceServerGrpcClient::Create
-  // Move the old client to the oldClients_ vector
+  // FIXME: call chain is evaluate() -> AsyncInfer() -> updateServer()
+  //which means that updateServer() is called on the worker thread of the grpc client (used for AsyncInfer())
+  //and therefore the existing grpc client cannot be deleted, or std::system_error "Resource deadlock avoided" will occur
   if (client_) {
     oldClients_.push_back(std::move(client_));
     // client_ is now nullptr after the move
